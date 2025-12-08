@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export interface Product {
   id: number;
@@ -10,34 +10,112 @@ export interface Product {
 
 interface CartItem extends Product {
   quantity: number;
+  color?: string;
+  size?: string;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product, color?: string, size?: string) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
+  collections: Product[];
+  likes: Product[];
+  addToLikes: (product: Product) => void;
+  removeFromLikes: (productId: number) => void;
+  isLiked: (productId: number) => boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+// LocalStorage keys
+const CART_STORAGE_KEY = 'teenique_cart';
+const LIKES_STORAGE_KEY = 'teenique_likes';
+const COLLECTIONS_STORAGE_KEY = 'teenique_collections';
 
-  const addToCart = (product: Product) => {
+// Helper functions for localStorage
+const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
+};
+
+const saveToStorage = <T,>(key: string, value: T): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+  }
+};
+
+export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const [cart, setCart] = useState<CartItem[]>(() => loadFromStorage(CART_STORAGE_KEY, []));
+  const [collections, setCollections] = useState<Product[]>(() => loadFromStorage(COLLECTIONS_STORAGE_KEY, []));
+  const [likes, setLikes] = useState<Product[]>(() => loadFromStorage(LIKES_STORAGE_KEY, []));
+
+  // Sync cart to localStorage whenever it changes
+  useEffect(() => {
+    saveToStorage(CART_STORAGE_KEY, cart);
+  }, [cart]);
+
+  // Sync likes to localStorage whenever it changes
+  useEffect(() => {
+    saveToStorage(LIKES_STORAGE_KEY, likes);
+  }, [likes]);
+
+  // Sync collections to localStorage whenever it changes
+  useEffect(() => {
+    saveToStorage(COLLECTIONS_STORAGE_KEY, collections);
+  }, [collections]);
+
+  const pushToCollections = (product: Product) => {
+    setCollections((prev) => {
+      if (prev.some((item) => item.id === product.id)) {
+        return prev;
+      }
+      return [...prev, product];
+    });
+  };
+
+  const addToLikes = (product: Product) => {
+    setLikes((prev) => {
+      if (prev.some((item) => item.id === product.id)) {
+        return prev;
+      }
+      return [...prev, product];
+    });
+    pushToCollections(product);
+  };
+
+  const removeFromLikes = (productId: number) => {
+    setLikes((prev) => prev.filter((item) => item.id !== productId));
+  };
+
+  const isLiked = (productId: number) => {
+    return likes.some((item) => item.id === productId);
+  };
+
+  const addToCart = (product: Product, color?: string, size?: string) => {
+    pushToCollections(product);
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
+      // Create unique key combining product id, color, and size
+      const existingItem = prevCart.find(
+        (item) => item.id === product.id && item.color === color && item.size === size
+      );
       if (existingItem) {
         return prevCart.map((item) =>
-          item.id === product.id
+          item.id === product.id && item.color === color && item.size === size
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...prevCart, { ...product, quantity: 1 }];
+      return [...prevCart, { ...product, quantity: 1, color: color || 'Default', size: size || 'M' }];
     });
   };
 
@@ -78,6 +156,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         cartTotal,
         cartCount,
+        collections,
+        likes,
+        addToLikes,
+        removeFromLikes,
+        isLiked,
       }}
     >
       {children}

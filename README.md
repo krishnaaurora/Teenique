@@ -60,6 +60,19 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Key features
+
+- **3D Clothing Orbit** – a Three.js-powered circular slider on the landing page that auto-rotates, supports drag or scroll inertia, and lets shoppers add items to the cart directly from the carousel.
+- **Product detail flows** – every slider card links to `/products/:id`, providing rich descriptions, pricing, and quick add-to-cart controls.
+- **Mood-driven styling** – the Style Gallery now mirrors the provided sky gradient background for visual parity.
+
+## Local development
+
+```sh
+npm install
+npm run dev # served on http://localhost:3000
+```
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/c58bff82-aec8-4f4f-aef8-a4f849c45712) and click on Share -> Publish.

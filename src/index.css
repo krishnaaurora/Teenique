@@ -1,6 +1,301 @@
+/* Base font family */
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Font utility classes */
+.font-bodoni {
+  font-family: 'Bodoni Moda', serif;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.circular-slider {
+  position: relative;
+  width: 100%;
+  height: clamp(420px, 55vw, 600px);
+  margin: 0 auto;
+  perspective: 1600px;
+  overflow: hidden;
+}
+
+.circular-slider__canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.circular-slider__canvas:active {
+  cursor: grabbing;
+}
+
+.circular-slider-card {
+  width: clamp(180px, 20vw, 240px);
+  height: clamp(260px, 32vw, 340px);
+  border-radius: 28px;
+  pointer-events: auto;
+}
+
+.circular-slider-card__inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 45px rgba(13, 13, 34, 0.15);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  border: 1px solid rgba(217, 198, 164, 0.2);
+}
+
+.circular-slider-card__inner:hover {
+  transform: scale(1.05);
+  box-shadow: 0 30px 55px rgba(13, 13, 34, 0.2), 0 0 25px rgba(217, 198, 164, 0.4);
+  border-color: rgba(217, 198, 164, 0.5);
+}
+
+.circular-slider-card__image {
+  width: 100%;
+  height: 70%;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Blinking/Pulsing animation for cart icon */
+@keyframes blink-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+.cart-icon-pulse {
+  animation: blink-pulse 2s infinite;
+}
+
+/* Slow subtle blink for post-video CTA */
+@keyframes blinkSlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.blink-slow {
+  animation: blinkSlow 2.2s ease-in-out infinite;
+}
+
+/* Logo drop-in then fade-out intro */
+@keyframes dropInOut {
+  0% { opacity: 0; transform: translateY(-40px) scale(0.98); }
+  40% { opacity: 1; transform: translateY(0) scale(1); }
+  70% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(0) scale(1); }
+}
+.intro-drop { animation: dropInOut 1.8s ease forwards; }
+
+/* Blur-to-sharp reveal */
+@keyframes blurIn {
+  0% { filter: blur(16px); opacity: 0.2; }
+  100% { filter: blur(0); opacity: 1; }
+}
+.blur-in { animation: blurIn 1.2s ease forwards; }
+
+/* Pop-in animation for overlay image */
+@keyframes popInKey {
+  0% { transform: scale(0.92); opacity: 0; filter: blur(6px); }
+  60% { transform: scale(1.02); opacity: 1; filter: blur(0); }
+  100% { transform: scale(1); opacity: 1; filter: blur(0); }
+}
+.pop-in { animation: popInKey 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Longer intro hold (~10s visibility) */
+@keyframes dropHold {
+  0% { opacity: 0; transform: translateY(-40px) scale(0.98); }
+  20% { opacity: 1; transform: translateY(0) scale(1); }
+  90% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(0) scale(1); }
+}
+.intro-drop-long { animation: dropHold 10s ease forwards; }
+
+/* LightRays effect (CSS-based) */
+.light-rays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 120%, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.96) 80%);
+}
+.light-rays::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(circle at var(--rx,50%) var(--ry,50%), var(--rays-color2, rgba(255,255,255,0.25)) 0%, transparent calc(55% * var(--spread, 0.85))),
+    repeating-conic-gradient(from 0deg at var(--rx,50%) var(--ry,50%), var(--rays-color1, rgba(255,255,255,0.65)) 0deg calc(1.8deg * var(--length,1.1)), transparent calc(4deg * var(--length,1.1)));
+  filter: blur(12px) saturate(1.2);
+  mix-blend-mode: screen;
+  animation: rays-rotate var(--dur, 14s) linear infinite;
+  opacity: 0.95;
+}
+
+@keyframes rays-rotate {
+  from { transform: rotate(0deg) scaleY(var(--ys,1.6)); }
+  to { transform: rotate(360deg) scaleY(var(--ys,1.6)); }
+}
+
+/* Bokeh floating lights */
+.lr-bokeh { position: absolute; inset: 0; }
+.lr-bokeh span {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.25) 60%, transparent 70%);
+  filter: blur(1.5px);
+  opacity: 0.35;
+  animation: bokehFloat var(--bdur, 8s) ease-in-out infinite, bokehTwinkle 3.8s ease-in-out infinite;
+  animation-delay: var(--bdelay, 0s);
+}
+
+@keyframes bokehFloat {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(-12px) translateX(6px); }
+}
+@keyframes bokehTwinkle {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.5; }
+}
+
+/* Top haze/spotlight bloom */
+.light-rays::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.25) calc(6% * var(--haze,0.35)), rgba(255,255,255,0.12) calc(10% * var(--haze,0.35)), rgba(255,255,255,0.04) calc(24% * var(--haze,0.35)), transparent 45%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* Trembling animation for add-to-cart button */
+@keyframes tremble {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  10% {
+    transform: translateY(-3px) translateX(-2px) rotate(-2deg);
+  }
+  20% {
+    transform: translateY(3px) translateX(2px) rotate(2deg);
+  }
+  30% {
+    transform: translateY(-3px) translateX(-2px) rotate(-2deg);
+  }
+  40% {
+    transform: translateY(3px) translateX(2px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(-2px) translateX(-1px) rotate(-1deg);
+  }
+  60% {
+    transform: translateY(2px) translateX(1px) rotate(1deg);
+  }
+  70% {
+    transform: translateY(-1px) translateX(-1px) rotate(-1deg);
+  }
+  80% {
+    transform: translateY(1px) translateX(1px) rotate(1deg);
+  }
+  90% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+}
+
+.add-to-cart-tremble {
+  animation: tremble 1s ease-in-out;
+}
+
+/* Animated Shader Gradient Background */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.gradient-shader-bg {
+  background: linear-gradient(
+    -45deg,
+    #ee7752,
+    #e73c7e,
+    #23a6d5,
+    #23d5ab
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  position: relative;
+  z-index: 0;
+}
+
+.gradient-shader-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse at 20% 50%,
+    rgba(255, 107, 107, 0.3),
+    transparent 50%
+  ),
+  radial-gradient(
+    ellipse at 80% 50%,
+    rgba(35, 213, 171, 0.3),
+    transparent 50%
+  );
+  animation: gradientShift 20s ease infinite reverse;
+  z-index: 1;
+}
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.

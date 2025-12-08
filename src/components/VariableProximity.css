@@ -1,0 +1,83 @@
+.variable-proximity-container {
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 5vw, 4rem);
+}
+
+.variable-proximity-title {
+  font-family: "Bodoni Moda", serif;
+  font-size: clamp(4rem, 12vw, 10rem);
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0.05em;
+}
+
+.variable-proximity-subtitle {
+  font-family: "Inter", sans-serif;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  opacity: 0.8;
+}
+
+/* Succession animation - fade in and slide up */
+@keyframes successionFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes successionGlow {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.6), 0 0 80px rgba(147, 112, 219, 0.4);
+  }
+}
+
+@keyframes letterReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) rotateX(-90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
+}
+
+.succession-animate {
+  animation: successionFadeIn 1s ease-out forwards;
+  opacity: 0;
+}
+
+.succession-title {
+  animation: successionFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             successionGlow 3s ease-in-out infinite 1.2s;
+  opacity: 0;
+}
+
+.succession-subtitle {
+  animation: successionFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+  opacity: 0;
+}
+
+.succession-button {
+  animation: successionFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+  opacity: 0;
+}
+
+/* Letter by letter animation for title */
+.letter-animate {
+  display: inline-block;
+  animation: letterReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
