@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { products as allProducts } from "@/data/products";
 import FashionLayout from "@/components/FashionLayout";
 import { useCart } from "@/contexts/CartContext";
 import {
@@ -412,13 +413,14 @@ Please confirm availability.`;
               <div className="space-y-3 max-h-60 overflow-auto">
                 {cart.map((item, index) => (
                   <div key={`mobile-${item.id}-${item.color}-${item.size}-${index}`} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-[#E8E4DE]">
-                    <div className="w-12 h-12 bg-[#E8E4DE] rounded-lg flex items-center justify-center overflow-hidden">
-                      {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-xs font-medium text-[#6B6B6B]">IMG</span>
-                      )}
-                    </div>
+                    {(() => {
+                      const imageSrc = item.image || allProducts.find(p => p.id === item.id)?.image || 'https://via.placeholder.com/600';
+                      return (
+                        <div className="w-12 h-12 bg-[#E8E4DE] rounded-lg flex items-center justify-center overflow-hidden">
+                          <img src={imageSrc} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                      );
+                    })()}
                     <div className="flex-1">
                       <p className="font-medium text-sm text-[#0F0F0F]">{item.name}</p>
                       <p className="text-xs text-[#6B6B6B]">{item.color || 'Default'} | {item.size || 'M'} | Qty: {item.quantity}</p>
@@ -603,21 +605,22 @@ Please confirm availability.`;
                   ) : (
                     cart.map((item, index) => (
                       <div key={`${item.id}-${item.color}-${item.size}-${index}`} className="flex items-center gap-4 p-3 bg-[#F5F3EF] rounded-xl border border-[#E8E4DE]">
-                        <div className="w-16 h-16 bg-[#E8E4DE] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          {item.image ? (
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-xs font-medium text-[#6B6B6B]">IMG</span>
-                          )}
-                        </div>
+                            {(() => {
+                              const imageSrc = item.image || allProducts.find(p => p.id === item.id)?.image || 'https://via.placeholder.com/600';
+                              return (
+                                <div className="w-16 h-16 bg-[#E8E4DE] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                  <img src={imageSrc} alt={item.name} className="w-full h-full object-cover" />
+                                </div>
+                              );
+                            })()}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-[#0F0F0F] truncate">{item.name}</p>
                           <p className="text-xs text-[#6B6B6B]">{item.color || 'Default'} | Size: {item.size || 'M'}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-6 h-6 bg-[#E8E4DE] hover:bg-[#D9C6A4]/30 rounded-full text-xs font-medium transition min-h-[24px] text-[#0F0F0F]">-</button>
+                            <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.color || undefined, item.size || undefined)} className="w-6 h-6 bg-[#E8E4DE] hover:bg-[#D9C6A4]/30 rounded-full text-xs font-medium transition min-h-[24px] text-[#0F0F0F]">-</button>
                             <span className="text-sm font-medium text-[#6B6B6B]">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-6 h-6 bg-[#E8E4DE] hover:bg-[#D9C6A4]/30 rounded-full text-xs font-medium transition min-h-[24px] text-[#0F0F0F]">+</button>
-                            <button onClick={() => removeFromCart(item.id)} className="ml-auto text-xs text-red-400 hover:text-red-500 font-medium min-h-[24px]">Remove</button>
+                            <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.color || undefined, item.size || undefined)} className="w-6 h-6 bg-[#E8E4DE] hover:bg-[#D9C6A4]/30 rounded-full text-xs font-medium transition min-h-[24px] text-[#0F0F0F]">+</button>
+                            <button onClick={() => removeFromCart(item.id, item.color || undefined, item.size || undefined)} className="ml-auto text-xs text-red-400 hover:text-red-500 font-medium min-h-[24px]">Remove</button>
                           </div>
                         </div>
                         <span className="font-serif text-[#D9C6A4]">₹{Math.round(item.price * item.quantity)}</span>

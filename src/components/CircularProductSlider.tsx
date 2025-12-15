@@ -42,7 +42,9 @@ const CircularProductSlider = () => {
 
     const cleanupCallbacks: Array<() => void> = [];
 
-    products.forEach((product, index) => {
+    const sliderProducts = products.filter((p) => p.id !== 10);
+
+    sliderProducts.forEach((product, index) => {
       const card = document.createElement("div");
       card.className = "circular-slider-card";
 
@@ -58,7 +60,7 @@ const CircularProductSlider = () => {
       card.appendChild(inner);
 
       const cssObject = new CSS3DObject(card);
-      const angle = (index / products.length) * Math.PI * 2;
+      const angle = (index / sliderProducts.length) * Math.PI * 2;
 
       cssObject.position.set(
         Math.sin(angle) * radius,

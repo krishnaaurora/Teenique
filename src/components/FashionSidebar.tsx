@@ -10,6 +10,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import iconImage from "@/assets/icon.png";
 
 interface NavItem {
   path: string;
@@ -89,8 +90,16 @@ const FashionSidebar = () => {
       {/* Logo Section */}
       <div className={`p-6 border-b ${theme.border}`}>
         <Link to="/" className="flex items-center gap-3 group">
-          <div className={`w-10 h-10 ${theme.accentBg} rounded-lg flex items-center justify-center shadow-lg shadow-[#D9C6A4]/20 transition-transform duration-300 group-hover:scale-110`}>
-            <span className="text-[#0F0F0F] font-bold text-lg font-serif">T</span>
+          <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl overflow-visible">
+            <img 
+              src={iconImage} 
+              alt="Teenique" 
+              className="w-14 h-14 object-contain scale-125" 
+              style={{ 
+                filter: 'contrast(1.2) brightness(1.05)',
+                imageRendering: 'auto'
+              }}
+            />
           </div>
           <div
             className={`
@@ -98,11 +107,11 @@ const FashionSidebar = () => {
               ${isExpanded || isMobile ? "w-auto opacity-100" : "w-0 opacity-0"}
             `}
           >
-            <h1 className={`text-lg tracking-[0.3em] ${theme.text} whitespace-nowrap`} style={{ fontFamily: "'Bodoni Moda', serif" }}>
+            <h1 className={`text-lg tracking-[0.3em] ${theme.text} whitespace-nowrap font-bold`} style={{ fontFamily: "'Bodoni Moda', serif" }}>
               TEENIQUE
             </h1>
-            <p className={`text-[10px] tracking-[0.2em] ${theme.textMuted} uppercase`} style={{ fontFamily: "'Inter', sans-serif" }}>
-              Haute Couture
+            <p className={`text-[10px] tracking-[0.2em] ${theme.text} uppercase font-bold`} style={{ fontFamily: "'Inter', sans-serif" }}>
+              Elegance Redesigned for Gen-Z
             </p>
           </div>
         </Link>

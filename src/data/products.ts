@@ -1,3 +1,4 @@
+
 import { Product } from "@/contexts/CartContext";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
@@ -6,47 +7,88 @@ import product4 from "@/assets/product-4.jpg";
 import product5 from "@/assets/product-5.jpg";
 import product6 from "@/assets/product-6.jpg";
 
+import backGrey from "@/../products/PRODUCT CODE 00001H/back grey.png";
+import blackJoggers from "@/../products/PRODUCT CODE 00001J/black joggers.png";
+import offWhiteSweatpants from "@/../products/PRODUCT CODE 00001SP/off white sweatpants.png";
+import screenshotT from "@/../products/PRODUCT CODE 00001T/Screenshot 2025-12-07 204932.png";
+import screenshotH from "@/../products/PRODUCT CODE 00002H/Screenshot 2025-12-08 181544.png";
+import screenshot3T_1 from "@/../products/PRODUCT CODE 00003T/Screenshot 2025-12-07 211113.png";
+import redBack from "@/../products/PRODUCT CODE 00004T/red back.png";
+import blackFront from "@/../products/PRODUCT CODE 00005T/black front.png";
+import r2tBlackFront from "@/../products/RPODUCT CODE 00002T/black front.png";
+import hoodie03HBlackFront from "@/../products/PRODUCT CODE 00003 H/black front.png";
+
 export const products: Product[] = [
   {
-    id: 1,
-    name: "Aura Beige Blazer",
-    price: 2499,
-    image: product1,
+    id: 7,
+    name: "Back Grey Limited Edition",
+    price: 2999,
+    image: backGrey,
     category: "Outerwear",
+    code: "00001H",
   },
   {
-    id: 2,
-    name: "Noir Leather Jacket",
-    price: 3999,
-    image: product2,
-    category: "Outerwear",
-  },
-  {
-    id: 3,
-    name: "Luna White Crop Top",
-    price: 899,
-    image: product3,
-    category: "Tops",
-  },
-  {
-    id: 4,
-    name: "Muse Denim Jeans",
-    price: 1799,
-    image: product4,
+    id: 8,
+    name: "Black Joggers",
+    price: 1599,
+    image: blackJoggers,
     category: "Bottoms",
+    code: "00001j",
   },
   {
-    id: 5,
-    name: "Solstice Floral Dress",
-    price: 2199,
-    image: product5,
-    category: "Dresses",
+    id: 9,
+    name: "Off White Sweatpants",
+    price: 1799,
+    image: offWhiteSweatpants,
+    category: "Bottoms",
+    code: "00001sp",
   },
   {
-    id: 6,
-    name: "Neon Statement Tee",
-    price: 799,
-    image: product6,
+    id: 10,
+    name: "Graphic Tee Screenshot",
+    price: 1299,
+    image: screenshotT,
     category: "Tops",
+    code: "00001T",
+  },
+  {
+    id: 11,
+    name: "Hoodie Screenshot",
+    price: 2499,
+    image: screenshotH,
+    category: "Outerwear",
+    code: "00002H",
+  },
+  {
+    id: 12,
+    name: "Tee Screenshot 3T",
+    price: 1299,
+    image: screenshot3T_1,
+    category: "Tops",
+    code: "00003T",
+  },
+  {
+    id: 13,
+    name: "Green Back Top",
+    price: 1399,
+    image: redBack,
+    category: "Tops",
+    code: "00004T",
+  },
+  {
+    id: 14,
+    name: "Black Front Top",
+    price: 1399,
+    image: blackFront,
+    category: "Tops",
+    code: "00005T",
+  },
+  {
+    id: 16,
+    name: "Hoodie 00003 H",
+    price: 2499,
+    image: hoodie03HBlackFront,
+    category: "Outerwear",
+    code: "00003H",
   },
 ];

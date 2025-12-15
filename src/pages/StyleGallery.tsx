@@ -2,8 +2,25 @@ import ProductCard from "@/components/ProductCard";
 import FashionLayout from "@/components/FashionLayout";
 import { products } from "@/data/products";
 import "@/styles/handwriting.css";
+import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
 
 const StyleGallery = () => {
+  const [likedProducts, setLikedProducts] = useState<number[]>([]);
+  const { addToCart, addToLikes, removeFromLikes, isLiked } = useCart();
+
+  const addToLikesLocal = (product: any) => {
+    setLikedProducts(prev => [...prev, Number(product.id)]);
+    // Forward any existing variant metadata so likes/collections store correct color/image
+    addToLikes(product, product.color || undefined, product.size || undefined, product.image || undefined);
+  };
+
+  const removeFromLikesLocal = (id: number) => {
+    setLikedProducts(prev => prev.filter(pid => pid !== id));
+    removeFromLikes(id);
+  };
+
+  const isLikedLocal = (id: number) => likedProducts.includes(id) || isLiked(id);
   return (
     <FashionLayout>
       <div className="min-h-screen pt-8 lg:pt-0 bg-[#F5F3EF]">
@@ -21,7 +38,22 @@ const StyleGallery = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} showSizes />
+              <ProductCard
+                key={product.id}
+                product={product}
+                showSizes
+                isLiked={isLikedLocal}
+                addToLikes={addToLikesLocal}
+                removeFromLikes={removeFromLikesLocal}
+                addToCart={addToCart}
+                onCardClick={() => {
+                  if (isLikedLocal(product.id)) {
+                    removeFromLikesLocal(product.id);
+                  } else {
+                    addToLikesLocal(product);
+                  }
+                }}
+              />
             ))}
           </div>
         </main>

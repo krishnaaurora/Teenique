@@ -10,6 +10,51 @@
   font-weight: 400;
   font-style: normal;
   letter-spacing: 0.05em;
+  /* Floaty water animation */
+  animation: floatyWater 5s ease-in-out infinite;
+}
+
+@keyframes floatyWater {
+  0% {
+    transform: translateY(0) rotate(-1deg) scale(1.01);
+    filter: blur(0.5px) brightness(1.01);
+  }
+  20% {
+    transform: translateY(-10px) rotate(-1deg) scale(1.02);
+    filter: blur(0.5px) brightness(1.01);
+  }
+  30% {
+    transform: translateY(-7px) rotate(1deg) scale(1.01);
+    filter: blur(0.3px) brightness(1.01);
+  }
+  40% {
+    transform: translateY(-2px) rotate(2deg) scale(1.01);
+    filter: blur(0.2px) brightness(1.01);
+  }
+  50% {
+    transform: translateY(0) rotate(0deg) scale(1.01);
+    filter: blur(0.1px) brightness(1.01);
+  }
+  60% {
+    transform: translateY(2px) rotate(-1deg) scale(1.01);
+    filter: blur(0.2px) brightness(1.01);
+  }
+  70% {
+    transform: translateY(7px) rotate(-2deg) scale(1.01);
+    filter: blur(0.3px) brightness(1.01);
+  }
+  80% {
+    transform: translateY(10px) rotate(-1deg) scale(1.02);
+    filter: blur(0.5px) brightness(1.01);
+  }
+  90% {
+    transform: translateY(6px) rotate(1deg) scale(1.015);
+    filter: blur(0.7px) brightness(1.02);
+  }
+  100% {
+    transform: translateY(0) rotate(-1deg) scale(1.01);
+    filter: blur(0.5px) brightness(1.01);
+  }
 }
 
 .variable-proximity-subtitle {
@@ -27,6 +72,7 @@
     transform: translateY(40px);
     filter: blur(10px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -35,11 +81,14 @@
 }
 
 @keyframes successionGlow {
-  0%, 100% {
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+
+  0%,
+  100% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
   }
+
   50% {
-    text-shadow: 0 0 40px rgba(255, 255, 255, 0.6), 0 0 80px rgba(147, 112, 219, 0.4);
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.2), 0 0 50px rgba(147, 112, 219, 0.15);
   }
 }
 
@@ -48,6 +97,7 @@
     opacity: 0;
     transform: translateY(20px) rotateX(-90deg);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) rotateX(0);
@@ -61,7 +111,7 @@
 
 .succession-title {
   animation: successionFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-             successionGlow 3s ease-in-out infinite 1.2s;
+    successionGlow 3s ease-in-out infinite 1.2s;
   opacity: 0;
 }
 

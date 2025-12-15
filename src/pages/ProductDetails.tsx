@@ -27,7 +27,9 @@ const ProductDetails = () => {
   }
 
   const handleAddToCart = () => {
-    addToCart(product);
+    // Forward any variant info (if present on the product) to ensure cart shows correct image/color
+    // ProductDetails has no color picker, so use product.image as the variant image when available
+    addToCart(product, (product as any).color || undefined, (product as any).size || undefined, (product as any).image || undefined);
     toast.success(`${product.name} added to your cart`);
   };
 
