@@ -275,6 +275,11 @@ Please confirm availability.`;
   const whatsappLink = `https://wa.me/919866685221?text=${generateWhatsAppMessage()}`;
   const isCartEmpty = cart.length === 0;
 
+  // Diagnostics for geolocation
+  const [geoStatus, setGeoStatus] = useState<'idle'|'prompt'|'granted'|'denied'|'approximate'|'error'>('idle');
+  const [lastGeoError, setLastGeoError] = useState<string | null>(null);
+  const [lastCoords, setLastCoords] = useState<{ lat: number; lng: number } | null>(null);
+
   // Get current location and auto-fill address using reverse geocoding
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
@@ -282,82 +287,141 @@ Please confirm availability.`;
       return;
     }
 
-    toast.loading("Getting your location...", { id: "location" });
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-        setLocationLink(mapsLink);
-
-        // Prefer Google Geocoding when API key is available, otherwise fallback to Nominatim
-        const googleKey = (import.meta.env as any).VITE_GOOGLE_API_KEY;
-        try {
-          if (googleKey) {
-            try {
-              const res = await locationLib.reverseGeocode(latitude, longitude, googleKey);
-              const formatted = res?.results?.[0]?.formatted_address;
-              if (formatted) {
-                // Try to populate basic components from address components
-                const components = res.results[0].address_components || [];
-                const compMap: Record<string, string> = {};
-                for (const c of components) {
-                  for (const t of c.types) compMap[t] = c.long_name;
-                }
-                const street = [compMap['street_number'], compMap['route']].filter(Boolean).join(' ');
-                const city = compMap['locality'] || compMap['administrative_area_level_2'] || compMap['postal_town'] || '';
-                const state = compMap['administrative_area_level_1'] || '';
-                const zip = compMap['postal_code'] || '';
-                setFormData(prev => ({
-                  ...prev,
-                  street: street || formatted || prev.street,
-                  city: city || prev.city,
-                  state: state || prev.state,
-                  zip: zip || prev.zip,
-                }));
-                toast.success("Address filled automatically!", { id: "location" });
-                return;
-              }
-            } catch (gErr) {
-              console.warn('Google reverse geocode failed, falling back to Nominatim', gErr);
-            }
+    // Quick permission check when possible
+    (async () => {
+      try {
+        const perms = (navigator as any).permissions;
+        if (perms && perms.query) {
+          const status = await perms.query({ name: 'geolocation' } as any);
+          if (status.state === 'denied') {
+            toast.error("Location access is blocked. Enable location in your browser settings.", { id: 'location' });
+            return;
           }
+        }
+      } catch (e) {
+        // ignore permissions API errors
+      }
 
-          // Fallback: use OpenStreetMap Nominatim
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
-            { headers: { 'Accept-Language': 'en' } }
-          );
+      toast.loading("Getting your location...", { id: 'location' });
 
-          if (response.ok) {
-            const data = await response.json();
-            const address = data.address || {};
-            const street = [address.house_number, address.road || address.street, address.neighbourhood || address.suburb].filter(Boolean).join(', ');
-            const city = address.city || address.town || address.village || address.county || '';
-            const state = address.state || '';
-            const zip = address.postcode || '';
+      const getPosition = (opts: PositionOptions) =>
+        new Promise<GeolocationPosition>((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, opts)
+        );
+
+      let coords: { latitude: number; longitude: number } | null = null;
+
+      // Try high accuracy first with longer timeout
+      try {
+        const p = await getPosition({ enableHighAccuracy: true, timeout: 25000, maximumAge: 0 });
+        coords = { latitude: p.coords.latitude, longitude: p.coords.longitude };
+        setGeoStatus('granted');
+        setLastGeoError(null);
+        setLastCoords({ lat: coords.latitude, lng: coords.longitude });
+      } catch (err1) {
+        console.warn('High-accuracy geolocation failed, retrying with lower accuracy', err1);
+        setGeoStatus('prompt');
+        setLastGeoError(String(err1?.message || err1));
+        toast("High-accuracy location failed, trying faster mode...");
+        // Try lower accuracy (faster) as fallback
+        try {
+          const p2 = await getPosition({ enableHighAccuracy: false, timeout: 20000, maximumAge: 60000 });
+          coords = { latitude: p2.coords.latitude, longitude: p2.coords.longitude };
+          setGeoStatus('granted');
+          setLastGeoError(null);
+          setLastCoords({ lat: coords.latitude, lng: coords.longitude });
+        } catch (err2) {
+          console.warn('Low-accuracy geolocation failed, falling back to IP-based lookup', err2);
+          setLastGeoError(String(err2?.message || err2));
+          // Fallback: IP-based geolocation (approximate)
+          try {
+            const ipRes = await fetch('https://ipapi.co/json/');
+            if (ipRes.ok) {
+              const ipData = await ipRes.json();
+              if (ipData && ipData.latitude && ipData.longitude) {
+                coords = { latitude: Number(ipData.latitude), longitude: Number(ipData.longitude) };
+                setGeoStatus('approximate');
+                setLastCoords({ lat: coords.latitude, lng: coords.longitude });
+                setLastGeoError(null);
+                toast('Using approximate location from IP address');
+              }
+            }
+          } catch (ipErr) {
+            console.warn('IP geolocation failed', ipErr);
+            setLastGeoError(String(ipErr?.message || ipErr));
+          }
+        }
+      }
+
+      if (!coords) {
+        setGeoStatus('error');
+        toast.error('Could not determine your location. Please enter address manually.', { id: 'location' });
+        return;
+      }
+
+      const { latitude, longitude } = coords;
+      const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+      setLocationLink(mapsLink);
+
+      // Reverse geocode (Google if key set, otherwise Nominatim)
+      const googleKey = (import.meta.env as any).VITE_GOOGLE_API_KEY;
+      try {
+        if (googleKey) {
+          try {
+            const res = await locationLib.reverseGeocode(latitude, longitude, googleKey);
+            const formatted = res?.results?.[0]?.formatted_address;
+            const components = res?.results?.[0]?.address_components || [];
+            const compMap: Record<string, string> = {};
+            for (const c of components) {
+              for (const t of c.types) compMap[t] = c.long_name;
+            }
+            const street = [compMap['street_number'], compMap['route']].filter(Boolean).join(' ');
+            const city = compMap['locality'] || compMap['administrative_area_level_2'] || compMap['postal_town'] || '';
+            const state = compMap['administrative_area_level_1'] || '';
+            const zip = compMap['postal_code'] || '';
             setFormData(prev => ({
               ...prev,
-              street: street || prev.street,
+              street: street || formatted || prev.street,
               city: city || prev.city,
               state: state || prev.state,
               zip: zip || prev.zip,
             }));
-            toast.success("Address filled automatically!", { id: "location" });
-          } else {
-            toast.success("Location captured! Please fill address manually.", { id: "location" });
+            setGeoStatus('granted');
+            toast.success('Address filled automatically!', { id: 'location' });
+            return;
+          } catch (gErr) {
+            console.warn('Google reverse geocode failed, falling back to Nominatim', gErr);
           }
-        } catch (error) {
-          console.error("Reverse geocoding error:", error);
-          toast.success("Location captured! Please verify address.", { id: "location" });
         }
-      },
-      (error) => {
-        console.error("Error getting location:", error);
-        toast.error("Could not get your location. Please enter address manually.", { id: "location" });
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
+
+        // Nominatim fallback
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
+          { headers: { 'Accept-Language': 'en' } }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          const address = data.address || {};
+          const street = [address.house_number, address.road || address.street, address.neighbourhood || address.suburb].filter(Boolean).join(', ');
+          const city = address.city || address.town || address.village || address.county || '';
+          const state = address.state || '';
+          const zip = address.postcode || '';
+          setFormData(prev => ({
+            ...prev,
+            street: street || prev.street,
+            city: city || prev.city,
+            state: state || prev.state,
+            zip: zip || prev.zip,
+          }));
+          toast.success('Address filled automatically!', { id: 'location' });
+        } else {
+          toast.success('Location captured! Please fill address manually.', { id: 'location' });
+        }
+      } catch (error) {
+        console.error('Reverse geocoding error:', error);
+        toast.success('Location captured! Please verify address.', { id: 'location' });
+      }
+    })();
   };
 
   if (orderPlaced) {
@@ -523,6 +587,13 @@ Please confirm availability.`;
                       </a>
                     </div>
                   )}
+                  {/* Geo diagnostics */}
+                  <div className="mt-3 text-xs text-[#6B6B6B]">
+                    <div>Permission status: <span className="font-medium text-[#0F0F0F]">{geoStatus}</span></div>
+                    {lastCoords && <div>Last coords: {lastCoords.lat.toFixed(5)}, {lastCoords.lng.toFixed(5)}</div>}
+                    {lastGeoError && <div className="text-red-500">Last error: {lastGeoError}</div>}
+                    <div className="mt-2 text-xs text-[#6B6B6B]">If location access is denied or times out, try enabling location in your browser or use the address fields manually.</div>
+                  </div>
                 </div>
               </div>
             </div>
