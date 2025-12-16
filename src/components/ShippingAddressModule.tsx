@@ -22,109 +22,123 @@ export default function ShippingAddressModule({ onSave }: Props) {
   });
 
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const googleMap = useRef<any>(null);
+  const leafletMap = useRef<any>(null);
   const markerRef = useRef<any>(null);
-  const geocoderRef = useRef<any>(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
 
-  // Replace with your API key (user provided). Keep key usage secure on your backend if needed.
-  const GOOGLE_API_KEY = 'AIzaSyBr4tKPMTXo88v3e_gYEMHZxm4wroUa2XI';
-
-  // Load Google Maps JS API dynamically
-  const loadGoogleMaps = (): Promise<void> => {
-    if ((window as any).google && (window as any).google.maps) return Promise.resolve();
+  // Load Leaflet (CSS + JS) dynamically
+  const loadLeaflet = (): Promise<void> => {
+    if ((window as any).L) return Promise.resolve();
     return new Promise((resolve, reject) => {
-      const existing = document.querySelector(`script[data-src="google-maps"]`);
+      const cssId = 'leaflet-css';
+      if (!document.getElementById(cssId)) {
+        const link = document.createElement('link');
+        link.id = cssId;
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+      }
+      const existing = document.querySelector(`script[data-src="leaflet-js"]`);
       if (existing) {
         existing.addEventListener('load', () => resolve());
-        existing.addEventListener('error', () => reject(new Error('Google Maps failed to load')));
+        existing.addEventListener('error', () => reject(new Error('Leaflet failed to load')));
         return;
       }
       const s = document.createElement('script');
-      s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}`;
+      s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
       s.async = true;
       s.defer = true;
-      s.setAttribute('data-src', 'google-maps');
+      s.setAttribute('data-src', 'leaflet-js');
       s.onload = () => resolve();
-      s.onerror = () => reject(new Error('Google Maps script failed to load'));
+      s.onerror = () => reject(new Error('Leaflet script failed to load'));
       document.head.appendChild(s);
     });
   };
 
-  // Reverse geocode lat/lng and update the form fields (street: route only, city, state, postal_code)
+  // Reverse geocode using Nominatim (OpenStreetMap)
   const reverseGeocodeAndFill = async (lat: number, lng: number) => {
     try {
-      await loadGoogleMaps();
-      if (!geocoderRef.current) geocoderRef.current = new (window as any).google.maps.Geocoder();
-      const results = await new Promise<any>((resolve, reject) => {
-        geocoderRef.current.geocode({ location: { lat, lng } }, (res: any, status: any) => {
-          if (status === 'OK') resolve(res);
-          else reject(new Error('Geocoder failed: ' + status));
-        });
-      });
-
-      const first = results && results[0];
-      if (!first) {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&addressdetails=1`;
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => res.statusText || String(res.status));
+        throw new Error('Nominatim response error: ' + txt);
+      }
+      const data = await res.json();
+      const addr = data && data.address ? data.address : null;
+      if (!addr) {
         setError('No address found for this location');
         return;
       }
 
-      // Parse components
-      const comp = (type: string) => {
-        const c = first.address_components.find((ac: any) => ac.types.includes(type));
-        return c ? c.long_name : null;
-      };
+      const route = addr.road || addr.pedestrian || addr.cycleway || addr.footway || addr.path || null;
+      const postal = addr.postcode || null;
+      const locality = addr.city || addr.town || addr.village || addr.hamlet || null;
+      const admin = addr.state || addr.county || null;
 
-      const route = comp('route'); // street name
-      const postal = comp('postal_code');
-      const locality = comp('locality') || comp('sublocality') || comp('administrative_area_level_2');
-      const admin = comp('administrative_area_level_1');
-
-      // Update only the allowed fields
       if (route) setField('street', route);
       if (locality) setField('city', locality);
       if (admin) setField('state', admin);
       if (postal) setField('zip', postal);
 
-      // clear any previous error
       setError(null);
     } catch (e: any) {
+      console.error('reverseGeocodeAndFill error', e);
       setError('Reverse geocode failed: ' + (e?.message || e));
     }
   };
 
-  // Initialize map and marker at given position
-  const initMap = async (lat: number, lng: number) => {
-    await loadGoogleMaps();
-    const google = (window as any).google;
-    if (!mapRef.current) return;
-
-    if (!googleMap.current) {
-      googleMap.current = new google.maps.Map(mapRef.current, {
-        center: { lat, lng },
-        zoom: 16,
-        disableDefaultUI: true,
-      });
-    } else {
-      googleMap.current.setCenter({ lat, lng });
+  // IP-based approximate location fallback (ipapi.co)
+  const ipFallback = async () => {
+    try {
+      setStatus('Using approximate location (IP)');
+      const r = await fetch('https://ipapi.co/json/');
+      if (!r.ok) throw new Error('IP lookup failed: ' + r.status);
+      const j = await r.json();
+      const lat = Number(j.latitude || j.lat || j.latitude);
+      const lon = Number(j.longitude || j.lon || j.longitude);
+      if (!lat || !lon) throw new Error('IP lookup did not return coordinates');
+      await reverseGeocodeAndFill(lat, lon);
+      await initMap(lat, lon);
+      setStatus('Approximate location applied');
+      return true;
+    } catch (e: any) {
+      console.warn('ipFallback failed', e);
+      setError('IP-based location fallback failed: ' + (e?.message || e));
+      return false;
+    } finally {
+      setLoadingLocation(false);
     }
+  };
 
-    if (!markerRef.current) {
-      markerRef.current = new google.maps.Marker({
-        position: { lat, lng },
-        map: googleMap.current,
-        draggable: true,
-      });
-      markerRef.current.addListener('dragend', async (ev: any) => {
-        const pos = markerRef.current.getPosition();
-        const nla = pos.lat();
-        const nlo = pos.lng();
-        // update form by reverse geocoding new marker position
-        await reverseGeocodeAndFill(nla, nlo);
-      });
-    } else {
-      markerRef.current.setPosition({ lat, lng });
-      markerRef.current.setMap(googleMap.current);
+  // Initialize Leaflet map and draggable marker
+  const initMap = async (lat: number, lng: number) => {
+    try {
+      await loadLeaflet();
+      const L = (window as any).L;
+      if (!mapRef.current) return;
+
+      if (!leafletMap.current) {
+        leafletMap.current = L.map(mapRef.current).setView([lat, lng], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(leafletMap.current);
+      } else {
+        leafletMap.current.setView([lat, lng], 16);
+      }
+
+      if (!markerRef.current) {
+        markerRef.current = L.marker([lat, lng], { draggable: true }).addTo(leafletMap.current);
+        markerRef.current.on('dragend', async (ev: any) => {
+          const pos = markerRef.current.getLatLng();
+          await reverseGeocodeAndFill(pos.lat, pos.lng);
+        });
+      } else {
+        markerRef.current.setLatLng([lat, lng]);
+        markerRef.current.addTo(leafletMap.current);
+      }
+    } catch (e: any) {
+      setError('Map init failed: ' + (e?.message || e));
     }
   };
 
@@ -181,9 +195,14 @@ export default function ShippingAddressModule({ onSave }: Props) {
       if (code === 1) {
         setError('Permission denied for location access');
       } else if (code === 2) {
-        setError('Position unavailable — try again or check your device settings');
+        setError('Position unavailable — trying approximate IP lookup...');
+        // try IP fallback
+        ipFallback();
+        return;
       } else if (code === 3) {
-        setError('Location fetch timed out. Try again (increase timeout) or allow high accuracy');
+        setError('Location fetch timed out. Trying approximate IP lookup...');
+        ipFallback();
+        return;
       } else {
         setError('Geolocation error: ' + (err?.message || 'Unknown error'));
       }
