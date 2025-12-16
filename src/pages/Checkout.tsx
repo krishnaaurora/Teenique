@@ -279,6 +279,8 @@ Please confirm availability.`;
   const [geoStatus, setGeoStatus] = useState<'idle'|'prompt'|'granted'|'denied'|'approximate'|'error'>('idle');
   const [lastGeoError, setLastGeoError] = useState<string | null>(null);
   const [lastCoords, setLastCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [googleRaw, setGoogleRaw] = useState<any | null>(null);
+  const [showGoogleRaw, setShowGoogleRaw] = useState(false);
 
   // Get current location and auto-fill address using reverse geocoding
   const handleGetLocation = () => {
@@ -365,12 +367,15 @@ Please confirm availability.`;
 
       // Reverse geocode (Google if key set, otherwise Nominatim)
       const googleKey = (import.meta.env as any).VITE_GOOGLE_API_KEY;
-      try {
-        if (googleKey) {
           try {
-            const res = await locationLib.reverseGeocode(latitude, longitude, googleKey);
-            const formatted = res?.results?.[0]?.formatted_address;
-            const components = res?.results?.[0]?.address_components || [];
+            if (googleKey) {
+              try {
+                const res = await locationLib.reverseGeocode(latitude, longitude, googleKey);
+                // keep the raw response for debugging
+                setGoogleRaw(res);
+                const chosen = res?.chosen || (res?.results && res.results[0]);
+                const formatted = chosen?.formatted_address;
+                const components = chosen?.address_components || [];
             const compMap: Record<string, string> = {};
             for (const c of components) {
               for (const t of c.types) compMap[t] = c.long_name;
@@ -592,6 +597,16 @@ Please confirm availability.`;
                     <div>Permission status: <span className="font-medium text-[#0F0F0F]">{geoStatus}</span></div>
                     {lastCoords && <div>Last coords: {lastCoords.lat.toFixed(5)}, {lastCoords.lng.toFixed(5)}</div>}
                     {lastGeoError && <div className="text-red-500">Last error: {lastGeoError}</div>}
+                      {googleRaw && (
+                        <div className="mt-2">
+                          <button onClick={() => setShowGoogleRaw(s => !s)} className="text-xs text-[#0F0F0F] underline">
+                            {showGoogleRaw ? 'Hide' : 'Show'} raw geocode debug info
+                          </button>
+                          {showGoogleRaw && (
+                            <pre className="mt-2 p-2 bg-[#F5F3EF] rounded text-xs overflow-auto max-h-48">{JSON.stringify(googleRaw?.chosen || googleRaw?.results?.[0] || googleRaw, null, 2)}</pre>
+                          )}
+                        </div>
+                      )}
                     <div className="mt-2 text-xs text-[#6B6B6B]">If location access is denied or times out, try enabling location in your browser or use the address fields manually.</div>
                   </div>
                 </div>

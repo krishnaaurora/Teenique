@@ -120,7 +120,7 @@ const Collections = () => {
                   <Link to="/checkout" onClick={handleProceedToCheckout}>
                     <Button 
                       size="lg" 
-                      className="bg-green-500 hover:bg-green-600 text-white font-semibold text-lg px-12 py-6 rounded-full shadow-lg shadow-green-500/20 hover:shadow-xl transition-all duration-300 flex items-center gap-3"
+                      className="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg px-12 py-6 rounded-full shadow-lg shadow-orange-500/20 hover:shadow-xl transition-all duration-300 flex items-center gap-3"
                     >
                       <ShoppingBag className="w-5 h-5" />
                       Proceed to Checkout
@@ -131,16 +131,63 @@ const Collections = () => {
               )}
             </>
           ) : (
-            <div className="text-center py-20 space-y-6">
-              <div className="w-24 h-24 mx-auto rounded-full bg-[#D9C6A4]/10 flex items-center justify-center mb-6">
-                <ShoppingBag className="w-10 h-10 text-[#D9C6A4]" />
+            <div className="text-center py-20 space-y-6 collections-anim" style={{ ['--pulse-duration' as any]: '2.8s', ['--icon-float-duration' as any]: '1.6s', ['--icon-blink-duration' as any]: '2s', ['--icon-float-dist' as any]: '14px' } as React.CSSProperties}>
+              <div className="relative w-72 h-72 mx-auto mb-6">
+                <div
+                  className="absolute inset-0 rounded-full overflow-hidden"
+                  style={{
+                    backgroundImage: "url('/image.png')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    filter: 'brightness(0.95)'
+                  }}
+                />
+
+                <div className="absolute inset-0 rounded-full bg-black/6" />
+
+                <div className="absolute inset-0 z-20 flex items-center justify-center">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ShoppingBag
+                      className="w-14 h-14 text-white"
+                      style={{ animation: 'iconFloat var(--icon-float-duration) ease-in-out infinite, iconBlink var(--icon-blink-duration) linear infinite' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="absolute inset-0 z-10 pointer-events-none">
+                  <span style={{ position: 'absolute', left: '6%', top: '18%', width: 26, height: 26, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #ff7a7a, #ff3d00)', filter: 'blur(10px)', opacity: 0.8, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0s) infinite ease-in-out', ['--pulse-delay' as any]: '0s' }} />
+                  <span style={{ position: 'absolute', left: '24%', top: '8%', width: 20, height: 20, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #ffd27a, #ffb300)', filter: 'blur(8px)', opacity: 0.75, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.3s) infinite ease-in-out', ['--pulse-delay' as any]: '0.3s' }} />
+                  <span style={{ position: 'absolute', left: '72%', top: '12%', width: 30, height: 30, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #8affc1, #00d27a)', filter: 'blur(12px)', opacity: 0.7, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.6s) infinite ease-in-out', ['--pulse-delay' as any]: '0.6s' }} />
+                  <span style={{ position: 'absolute', left: '82%', top: '52%', width: 18, height: 18, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #7aa9ff, #0066ff)', filter: 'blur(8px)', opacity: 0.75, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.6s) infinite ease-in-out', ['--pulse-delay' as any]: '0.6s' }} />
+                  <span style={{ position: 'absolute', left: '44%', top: '76%', width: 28, height: 28, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #ff7aea, #ff00c8)', filter: 'blur(10px)', opacity: 0.72, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.2s) infinite ease-in-out', ['--pulse-delay' as any]: '0.2s' }} />
+                </div>
+
+                <style>{`
+                  @keyframes pulse {
+                    0% { opacity: 0.25; transform: scale(0.9); }
+                    50% { opacity: 1; transform: scale(1.06); }
+                    100% { opacity: 0.25; transform: scale(0.9); }
+                  }
+                  @keyframes iconFloat {
+                    0% { transform: translateY(0); }
+                    50% { transform: translateY(-var(--icon-float-dist)); }
+                    100% { transform: translateY(0); }
+                  }
+                  @keyframes iconBlink {
+                    0% { opacity: 0.95; }
+                    45% { opacity: 1; }
+                    55% { opacity: 0.6; }
+                    100% { opacity: 0.95; }
+                  }
+                `}</style>
               </div>
+
               <p className="text-[#0F0F0F]/60 text-lg">No pieces have been saved yet.</p>
               <p className="text-[#0F0F0F]/40 text-sm">Like items or add them to your cart to see them here.</p>
               <Link to="/gallery">
                 <Button 
                   size="lg" 
-                  className="bg-[#D9C6A4] hover:bg-[#C9B694] text-[#0F0F0F] font-semibold rounded-full px-8 py-4 shadow-lg shadow-[#D9C6A4]/20 transition-all duration-300"
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full px-8 py-4 shadow-lg shadow-orange-500/20 transition-all duration-300"
                 >
                   Browse the Style Gallery
                 </Button>

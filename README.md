@@ -73,6 +73,37 @@ npm install
 npm run dev # served on http://localhost:3000
 ```
 
+## Google API key (local only)
+
+The location autofill feature uses the Google Geocoding API. For local development, add your Google API key to a `.env.local` file in the project root (do NOT commit this file).
+
+1. Copy the example file:
+
+```powershell
+cp .env.local.example .env.local
+```
+
+2. Open `.env.local` and replace the placeholder with your real key:
+
+```text
+VITE_GOOGLE_API_KEY=REPLACE_WITH_YOUR_GOOGLE_API_KEY
+```
+
+3. Restart the dev server so Vite picks up the new environment variable:
+
+```powershell
+npm run dev
+```
+
+Alternatively, to test without creating a file you can set the env var in PowerShell for the current session and start the dev server in the same terminal:
+
+```powershell
+$env:VITE_GOOGLE_API_KEY = "REPLACE_WITH_YOUR_GOOGLE_API_KEY";
+npm run dev
+```
+
+Note: `.env.local` is ignored by the repo via the existing `*.local` rule in `.gitignore`.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/c58bff82-aec8-4f4f-aef8-a4f849c45712) and click on Share -> Publish.
