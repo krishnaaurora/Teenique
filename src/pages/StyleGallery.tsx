@@ -23,8 +23,10 @@ const StyleGallery = () => {
   const isLikedLocal = (id: number) => likedProducts.includes(id) || isLiked(id);
   return (
     <FashionLayout>
-      <div className="min-h-screen pt-8 lg:pt-0 bg-[#F5F3EF]">
-        <main className="container px-4 py-12 md:py-16 lg:pl-8">
+      <div className="min-h-screen pt-8 lg:pt-0 relative">
+        <div className="absolute inset-0 z-0 bg-center bg-cover" style={{ backgroundImage: `url('/image%20copy%202.png')`, opacity: 0.28 }} aria-hidden="true" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent to-[#F5F3EF]" aria-hidden="true" />
+        <main className="container px-4 py-12 md:py-16 lg:pl-8 relative z-20">
           <div className="text-center mb-12">
             <p className="uppercase tracking-[0.3em] text-sm text-[#D9C6A4] mb-4">Curated Collection</p>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[#0F0F0F] mb-4 tracking-tight">
