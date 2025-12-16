@@ -170,6 +170,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const lastClickRef = useRef(0);
+  const clickTimeoutRef = useRef<number | null>(null);
 
   // Product-specific image map
   const productImageMap: Record<
@@ -587,13 +588,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [touchEndY, setTouchEndY] = useState<number | null>(null);
 
   const handleCardClick = () => {
-    const now = Date.now();
-    if (now - lastClickRef.current < 300) {
-      return; // double click, don't add to favorites
+    // If there's an existing pending single-click action, treat this as a double-click/tap and cancel it
+    if (clickTimeoutRef.current) {
+      window.clearTimeout(clickTimeoutRef.current);
+      clickTimeoutRef.current = null;
+      return; // double-tap detected — do not trigger favorite
     }
-    lastClickRef.current = now;
-    if (onCardClick) onCardClick();
+
+    // Schedule single-click action; if a second tap/click occurs within 300ms, it will be cancelled
+    clickTimeoutRef.current = window.setTimeout(() => {
+      clickTimeoutRef.current = null;
+      if (onCardClick) onCardClick();
+    }, 300) as unknown as number;
   };
+
+  useEffect(() => {
+    return () => {
+      if (clickTimeoutRef.current) {
+        window.clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const cycleAngle = () => {
     if (!hasModalSwatches) return;
@@ -783,7 +799,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
           onClick={handleModalClose}
         >
-          <div className="relative max-w-sm w-full mx-4">
+          <div className="relative max-w-md w-full mx-4">
 
             <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
 
@@ -795,7 +811,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     src={config.images[selectedColor]?.[selectedAngle] || placeholderImage}
                     alt={`${product.name} - ${selectedColor} ${selectedAngle}`}
                     className="w-full max-h-[60vh] object-contain cursor-pointer"
-                    onClick={cycleAngle}
+                      onClick={cycleAngle}
                     onTouchStart={onTouchStart}
                     onTouchMove={onTouchMove}
                     onTouchEnd={onTouchEnd}
@@ -814,7 +830,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                           setSelectedAngle(config.defaultAngle);
                         }}
                         aria-label="Previous color"
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow z-20"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-transparent hover:bg-white/10 p-2 rounded-full z-20"
                       >
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                           <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
@@ -831,7 +847,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                           setSelectedAngle(config.defaultAngle);
                         }}
                         aria-label="Next color"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow z-20"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent hover:bg-white/10 p-2 rounded-full z-20"
                       >
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                           <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6" />
