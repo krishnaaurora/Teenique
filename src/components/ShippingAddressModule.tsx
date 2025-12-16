@@ -140,6 +140,24 @@ export default function ShippingAddressModule({ onSave }: Props) {
       return;
     }
 
+    // Check Permissions API early (if available) to provide immediate feedback
+    try {
+      if ((navigator as any).permissions && (navigator as any).permissions.query) {
+        (navigator as any).permissions.query({ name: 'geolocation' }).then((permStatus: any) => {
+          if (permStatus.state === 'denied') {
+            setError('Location permission is blocked — enable location for this site in your browser settings');
+            setStatus(null);
+            setLoadingLocation(false);
+            return;
+          }
+        }).catch(() => {
+          // ignore permission check errors
+        });
+      }
+    } catch (e) {
+      // ignore
+    }
+
     navigator.geolocation.getCurrentPosition(async (position) => {
       const { latitude, longitude, accuracy } = position.coords;
       // Low accuracy warning threshold (meters)
@@ -158,12 +176,20 @@ export default function ShippingAddressModule({ onSave }: Props) {
         setLoadingLocation(false);
       }
     }, (err) => {
-      // Handle geolocation errors
-      if (err.code === err.PERMISSION_DENIED) setError('Permission denied for location access');
-      else setError('Geolocation error: ' + err.message);
+      // Handle geolocation errors with clearer messages
+      const code = err && err.code;
+      if (code === 1) {
+        setError('Permission denied for location access');
+      } else if (code === 2) {
+        setError('Position unavailable — try again or check your device settings');
+      } else if (code === 3) {
+        setError('Location fetch timed out. Try again (increase timeout) or allow high accuracy');
+      } else {
+        setError('Geolocation error: ' + (err?.message || 'Unknown error'));
+      }
       setStatus(null);
       setLoadingLocation(false);
-    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
   };
 
   const setField = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
@@ -203,7 +229,14 @@ export default function ShippingAddressModule({ onSave }: Props) {
         Shipping Address
       </h3>
       {status && <div className="text-sm text-emerald-700 mb-2 font-medium">{status}</div>}
-      {error && <div className="text-sm text-red-600 mb-2 font-medium">{error}</div>}
+      {error && (
+        <div className="flex items-center gap-3 mb-2">
+          <div className="text-sm text-red-600 font-medium">{error}</div>
+          {!loadingLocation && (
+            <button onClick={handleUseCurrentLocation} className="text-sm px-3 py-1 bg-white border rounded text-[#0F0F0F]">Retry</button>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
         <div>
