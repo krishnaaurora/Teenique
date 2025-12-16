@@ -185,6 +185,8 @@ const Checkout = () => {
     city: "",
     state: "",
     zip: "",
+    lat: null,
+    lng: null,
     country: "India",
     addressType: "Home",
     deliveryInstructions: "",
@@ -254,6 +256,7 @@ Quantity: ${item.quantity}`
       formData.zip,
       "India"
     ].filter(Boolean).join(", ");
+    const mapLink = formData.lat && formData.lng ? `\nMap: https://www.openstreetmap.org/?mlat=${formData.lat}&mlon=${formData.lng}#map=18/${formData.lat}/${formData.lng}` : '';
 
     const message = `Order Request from TEENIQUE
 
@@ -275,6 +278,7 @@ ${customerNotes || "(No notes)"}
 
 Delivery Location:
   ${deliveryAddress || "Not provided"}
+${mapLink}
 
 Address Type: ${formData.addressType || 'Home'}
 Delivery Instructions: ${formData.deliveryInstructions || '(none)'}
@@ -415,6 +419,8 @@ Please confirm availability.`;
                     city: payload.city || prev.city,
                     state: payload.state || prev.state,
                     zip: payload.zip || prev.zip,
+                    lat: typeof payload.lat !== 'undefined' ? payload.lat : prev.lat,
+                    lng: typeof payload.lng !== 'undefined' ? payload.lng : prev.lng,
                     addressType: payload.addressType || prev.addressType,
                     deliveryInstructions: payload.deliveryInstructions || prev.deliveryInstructions,
                     setAsDefault: typeof payload.setAsDefault === 'boolean' ? payload.setAsDefault : prev.setAsDefault,

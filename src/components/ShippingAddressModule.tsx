@@ -24,7 +24,9 @@ export default function ShippingAddressModule({ onSave }: Props) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMap = useRef<any>(null);
   const markerRef = useRef<any>(null);
+  const circleRef = useRef<any>(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [currentPos, setCurrentPos] = useState<{ lat: number; lng: number } | null>(null);
 
   // Load Leaflet (CSS + JS) dynamically
   const loadLeaflet = (): Promise<void> => {
@@ -57,62 +59,22 @@ export default function ShippingAddressModule({ onSave }: Props) {
 
   // Reverse geocode using Nominatim (OpenStreetMap)
   const reverseGeocodeAndFill = async (lat: number, lng: number) => {
-    try {
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&addressdetails=1`;
-      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-      if (!res.ok) {
-        const txt = await res.text().catch(() => res.statusText || String(res.status));
-        throw new Error('Nominatim response error: ' + txt);
-      }
-      const data = await res.json();
-      const addr = data && data.address ? data.address : null;
-      if (!addr) {
-        setError('No address found for this location');
-        return;
-      }
-
-      const route = addr.road || addr.pedestrian || addr.cycleway || addr.footway || addr.path || null;
-      const postal = addr.postcode || null;
-      const locality = addr.city || addr.town || addr.village || addr.hamlet || null;
-      const admin = addr.state || addr.county || null;
-
-      if (route) setField('street', route);
-      if (locality) setField('city', locality);
-      if (admin) setField('state', admin);
-      if (postal) setField('zip', postal);
-
-      setError(null);
-    } catch (e: any) {
-      console.error('reverseGeocodeAndFill error', e);
-      setError('Reverse geocode failed: ' + (e?.message || e));
-    }
+    // Network geocoding is disabled per user preference — only browser geolocation is used.
+    // Do not perform any external network calls. Leave address fields for manual entry.
+    setStatus('Reverse geocoding disabled — coordinates available below');
+    return;
   };
 
   // IP-based approximate location fallback (ipapi.co)
+  // IP fallback removed to avoid external network calls per user request.
   const ipFallback = async () => {
-    try {
-      setStatus('Using approximate location (IP)');
-      const r = await fetch('https://ipapi.co/json/');
-      if (!r.ok) throw new Error('IP lookup failed: ' + r.status);
-      const j = await r.json();
-      const lat = Number(j.latitude || j.lat || j.latitude);
-      const lon = Number(j.longitude || j.lon || j.longitude);
-      if (!lat || !lon) throw new Error('IP lookup did not return coordinates');
-      await reverseGeocodeAndFill(lat, lon);
-      await initMap(lat, lon);
-      setStatus('Approximate location applied');
-      return true;
-    } catch (e: any) {
-      console.warn('ipFallback failed', e);
-      setError('IP-based location fallback failed: ' + (e?.message || e));
-      return false;
-    } finally {
-      setLoadingLocation(false);
-    }
+    setError('IP-based fallback disabled');
+    setLoadingLocation(false);
+    return false;
   };
 
   // Initialize Leaflet map and draggable marker
-  const initMap = async (lat: number, lng: number) => {
+  const initMap = async (lat: number, lng: number, accuracy?: number) => {
     try {
       await loadLeaflet();
       const L = (window as any).L;
@@ -131,11 +93,25 @@ export default function ShippingAddressModule({ onSave }: Props) {
         markerRef.current = L.marker([lat, lng], { draggable: true }).addTo(leafletMap.current);
         markerRef.current.on('dragend', async (ev: any) => {
           const pos = markerRef.current.getLatLng();
-          await reverseGeocodeAndFill(pos.lat, pos.lng);
+          setCurrentPos({ lat: pos.lat, lng: pos.lng });
+          if (circleRef.current) circleRef.current.setLatLng([pos.lat, pos.lng]);
+          // Reverse geocoding disabled — do not call external services.
         });
+        setCurrentPos({ lat, lng });
       } else {
         markerRef.current.setLatLng([lat, lng]);
         markerRef.current.addTo(leafletMap.current);
+        setCurrentPos({ lat, lng });
+      }
+
+      // show accuracy circle if available
+      if (typeof accuracy === 'number' && !isNaN(accuracy)) {
+        if (!circleRef.current) {
+          circleRef.current = L.circle([lat, lng], { radius: Math.max(5, accuracy), color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.08 }).addTo(leafletMap.current);
+        } else {
+          circleRef.current.setLatLng([lat, lng]);
+          circleRef.current.setRadius(Math.max(5, accuracy));
+        }
       }
     } catch (e: any) {
       setError('Map init failed: ' + (e?.message || e));
@@ -172,31 +148,47 @@ export default function ShippingAddressModule({ onSave }: Props) {
       // ignore
     }
 
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      const { latitude, longitude, accuracy } = position.coords;
-      // Low accuracy warning threshold (meters)
-      const LOW_ACCURACY_THRESHOLD = 100;
-      if (accuracy && accuracy > LOW_ACCURACY_THRESHOLD) {
-        setError(`Location accuracy is low (${Math.round(accuracy)}m). Results may be imprecise.`);
-      }
+    // Try to improve accuracy via watchPosition: keep watching until accuracy is acceptable or timeout
+    const LOW_ACCURACY_THRESHOLD = 50; // meters
+    const MAX_WATCH_TIME = 20000; // ms
+    let watchId: number | null = null;
+    const start = Date.now();
+
+    const success = async (position: GeolocationPosition) => {
+      const { latitude, longitude, accuracy } = position.coords as GeolocationCoordinates;
 
       try {
-        await reverseGeocodeAndFill(latitude, longitude);
-        await initMap(latitude, longitude);
-        setStatus('Location applied');
+        // Do NOT perform reverse geocoding — only use coordinates per user request.
+        await initMap(latitude, longitude, accuracy ?? undefined);
+        setCurrentPos({ lat: latitude, lng: longitude });
+        setStatus('Coordinates captured — complete address manually');
       } catch (e: any) {
-        setError('Failed to apply location: ' + (e?.message || e));
-      } finally {
-        setLoadingLocation(false);
+        console.warn('apply location failed', e);
       }
-    }, (err) => {
-      // Handle geolocation errors with clearer messages
+
+      // If accuracy good enough, stop watching
+      if (accuracy && accuracy <= LOW_ACCURACY_THRESHOLD) {
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        setLoadingLocation(false);
+        return;
+      }
+
+      // stop watching if we've exceeded max time
+      if (Date.now() - start > MAX_WATCH_TIME) {
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        if (accuracy) setError(`Location accuracy is low (${Math.round(accuracy)}m). Using best available coordinates.`);
+        setLoadingLocation(false);
+        return;
+      }
+      // otherwise, continue watching for better accuracy
+    };
+
+    const failure = (err: GeolocationPositionError) => {
       const code = err && err.code;
       if (code === 1) {
         setError('Permission denied for location access');
       } else if (code === 2) {
         setError('Position unavailable — trying approximate IP lookup...');
-        // try IP fallback
         ipFallback();
         return;
       } else if (code === 3) {
@@ -208,8 +200,19 @@ export default function ShippingAddressModule({ onSave }: Props) {
       }
       setStatus(null);
       setLoadingLocation(false);
-    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    };
+
+    try {
+      watchId = navigator.geolocation.watchPosition(success, failure, { enableHighAccuracy: true, maximumAge: 0, timeout: MAX_WATCH_TIME });
+      // also attempt a quick single-shot first (some browsers respond faster)
+      navigator.geolocation.getCurrentPosition(success, failure, { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 });
+    } catch (e) {
+      setError('Geolocation failed to start: ' + (e as any)?.message || e);
+      setLoadingLocation(false);
+    }
   };
+
+  // (Sharing is handled by Checkout page; shipping module only supplies lat/lng in save payload)
 
   const setField = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
 
@@ -229,6 +232,8 @@ export default function ShippingAddressModule({ onSave }: Props) {
       addressType: form.addressType,
       deliveryInstructions: form.deliveryInstructions,
       setAsDefault: form.setAsDefault,
+      lat: currentPos?.lat ?? null,
+      lng: currentPos?.lng ?? null,
     };
     try {
       if (onSave) await onSave(payload);
@@ -237,6 +242,12 @@ export default function ShippingAddressModule({ onSave }: Props) {
     } catch (e: any) {
       setError('Save failed: ' + (e?.message || e));
     }
+  };
+
+  const copyCoords = () => {
+    if (!currentPos) return;
+    const txt = `${currentPos.lat},${currentPos.lng}`;
+    navigator.clipboard?.writeText(txt).then(() => setStatus('Coordinates copied to clipboard')).catch(() => setError('Failed to copy'));
   };
 
   return (
@@ -269,6 +280,18 @@ export default function ShippingAddressModule({ onSave }: Props) {
         <div className="md:col-span-2">
           <label className="block text-sm font-medium mb-1">Landmark</label>
           <input id="landmark" value={form.landmark} onChange={(e) => setField('landmark', e.target.value)} className="w-full p-3 rounded-lg border focus:ring-2 focus:ring-[#D9C6A4] focus:border-[#D9C6A4] mt-1 bg-white" placeholder="Near park, mall, etc." />
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <div className="text-sm text-[#0F0F0F]/80">
+          <div className="font-medium">Coordinates</div>
+          <div className="text-xs text-[#6B6B6B]">{currentPos ? `${currentPos.lat.toFixed(6)}, ${currentPos.lng.toFixed(6)}` : 'No coordinates captured'}</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={copyCoords} disabled={!currentPos} className="px-3 py-2 rounded-lg bg-[#F5F5F5] border text-sm">Copy</button>
+          {currentPos && (
+            <a href={`https://www.openstreetmap.org/?mlat=${currentPos.lat}&mlon=${currentPos.lng}#map=18/${currentPos.lat}/${currentPos.lng}`} target="_blank" rel="noreferrer" className="px-3 py-2 rounded-lg bg-[#D9C6A4] text-black font-medium">Open Map</a>
+          )}
         </div>
       </div>
 

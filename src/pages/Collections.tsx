@@ -54,6 +54,52 @@ const StorageDebugger: React.FC = () => {
 const Collections = () => {
   const { cart, likes, addToCart } = useCart();
   
+  // Gradient configuration provided by user
+  const gradientConfig = {
+    colors: [
+      { color: '#cdb4db', enabled: true },
+      { color: '#ffc8dd', enabled: true },
+      { color: '#ffafcc', enabled: true },
+      { color: '#bde0fe', enabled: true },
+      { color: '#a2d2ff', enabled: false },
+    ],
+    speed: 4,
+    horizontalPressure: 4,
+    verticalPressure: 6,
+    waveFrequencyX: 2,
+    waveFrequencyY: 4,
+    waveAmplitude: 6,
+    shadows: 0,
+    highlights: 4,
+    colorBrightness: 1,
+    colorSaturation: 3,
+    wireframe: false,
+    colorBlending: 5,
+    backgroundColor: '#003FFF',
+    backgroundAlpha: 1,
+    grainScale: 0,
+    grainSparsity: 0,
+    grainIntensity: 0,
+    grainSpeed: 0,
+    resolution: 1,
+    yOffset: 0,
+  };
+
+  const enabledColors = gradientConfig.colors.filter((c) => c.enabled).map((c) => c.color);
+  const animDuration = Math.max(3, 20 / (gradientConfig.speed || 1));
+  const bgSize = `${100 + (gradientConfig.waveAmplitude || 0) * 5}% ${100 + (gradientConfig.waveAmplitude || 0) * 3}%`;
+  const gradientStyle: React.CSSProperties = {
+    background: `linear-gradient(90deg, ${enabledColors.join(', ')})`,
+    backgroundSize: bgSize,
+    animation: `gradientShift ${animDuration}s ease infinite`,
+    position: 'absolute',
+    inset: 0,
+    zIndex: -1,
+    opacity: 0.95,
+    mixBlendMode: 'normal',
+    backgroundColor: gradientConfig.backgroundColor,
+  };
+  
   
   // Combine cart and likes, removing duplicates by id
   // Show only liked/saved items in Collections (do not auto-include cart items)
@@ -79,8 +125,9 @@ const Collections = () => {
 
   return (
     <FashionLayout>
-      <div className="min-h-screen pt-8 lg:pt-0 bg-[#F5F3EF]">
-        <main className="container px-4 py-16 md:py-24 lg:pl-8">
+      <div className="min-h-screen pt-8 lg:pt-0 bg-[#F5F3EF] relative overflow-hidden">
+        <div aria-hidden style={gradientStyle} className="gradient-shader-bg" />
+        <main className="container px-4 py-16 md:py-24 lg:pl-8 relative">
           <div className="text-center mb-12">
             <p className="uppercase tracking-[0.3em] text-sm text-[#D9C6A4] mb-4">Saved Looks</p>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[#0F0F0F] mb-4 tracking-tight">
