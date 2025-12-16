@@ -57,6 +57,47 @@ const Collections = () => {
   const [iconFloatDuration, setIconFloatDuration] = useState(1.6);
   const [iconBlinkDuration, setIconBlinkDuration] = useState(2);
   const [iconFloatDist, setIconFloatDist] = useState(14);
+  const [glow1, setGlow1] = useState('radial-gradient(circle at 30% 30%, #ff7a7a, #ff3d00)');
+  const [glow2, setGlow2] = useState('radial-gradient(circle at 30% 30%, #ffd27a, #ffb300)');
+  const [glow3, setGlow3] = useState('radial-gradient(circle at 30% 30%, #8affc1, #00d27a)');
+  const [glow4, setGlow4] = useState('radial-gradient(circle at 30% 30%, #7aa9ff, #0066ff)');
+  const [glow5, setGlow5] = useState('radial-gradient(circle at 30% 30%, #ff7aea, #ff00c8)');
+
+  const applyPreset = (name: 'subtle' | 'lively' | 'disco') => {
+    if (name === 'subtle') {
+      setPulseDuration(3.4);
+      setIconFloatDuration(1.2);
+      setIconBlinkDuration(2.4);
+      setIconFloatDist(10);
+      setGlow1('radial-gradient(circle at 30% 30%, #ffdca8, #f6d7c3)');
+      setGlow2('radial-gradient(circle at 30% 30%, #efe6d6, #e6dfd3)');
+      setGlow3('radial-gradient(circle at 30% 30%, #dfe9e6, #cfdedf)');
+      setGlow4('radial-gradient(circle at 30% 30%, #e9eef8, #dfe8ff)');
+      setGlow5('radial-gradient(circle at 30% 30%, #f8eef7, #f2e7f5)');
+    }
+    if (name === 'lively') {
+      setPulseDuration(2.6);
+      setIconFloatDuration(1.6);
+      setIconBlinkDuration(1.9);
+      setIconFloatDist(14);
+      setGlow1('radial-gradient(circle at 30% 30%, #ff9a88, #ff5a2e)');
+      setGlow2('radial-gradient(circle at 30% 30%, #ffe59a, #ffbf3a)');
+      setGlow3('radial-gradient(circle at 30% 30%, #9fffd3, #00d27a)');
+      setGlow4('radial-gradient(circle at 30% 30%, #9fbfff, #0080ff)');
+      setGlow5('radial-gradient(circle at 30% 30%, #ff9af0, #ff3ec8)');
+    }
+    if (name === 'disco') {
+      setPulseDuration(1.6);
+      setIconFloatDuration(0.9);
+      setIconBlinkDuration(0.9);
+      setIconFloatDist(18);
+      setGlow1('radial-gradient(circle at 30% 30%, #ff2d6f, #ff7a00)');
+      setGlow2('radial-gradient(circle at 30% 30%, #ffd700, #ff70f0)');
+      setGlow3('radial-gradient(circle at 30% 30%, #00fff2, #00bfa5)');
+      setGlow4('radial-gradient(circle at 30% 30%, #335bff, #6b00ff)');
+      setGlow5('radial-gradient(circle at 30% 30%, #ff00b8, #ff6b00)');
+    }
+  };
   
   // Combine cart and likes, removing duplicates by id
   // Show only liked/saved items in Collections (do not auto-include cart items)
@@ -124,7 +165,7 @@ const Collections = () => {
                   <Link to="/checkout" onClick={handleProceedToCheckout}>
                     <Button 
                       size="lg" 
-                      className="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg px-12 py-6 rounded-full shadow-lg shadow-orange-500/20 hover:shadow-xl transition-all duration-300 flex items-center gap-3"
+                      className="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg px-12 py-6 rounded-full shadow-2xl shadow-orange-600/25 hover:shadow-2xl transition-all duration-300 flex items-center gap-3"
                     >
                       <ShoppingBag className="w-5 h-5" />
                       Proceed to Checkout
@@ -167,11 +208,11 @@ const Collections = () => {
                 </div>
 
                 <div className="absolute inset-0 z-10 pointer-events-none">
-                  <span style={{ position: 'absolute', left: '6%', top: '18%', width: 26, height: 26, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #ff7a7a, #ff3d00)', filter: 'blur(10px)', opacity: 0.8, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0s) infinite ease-in-out', ['--pulse-delay' as any]: '0s' }} />
-                  <span style={{ position: 'absolute', left: '24%', top: '8%', width: 20, height: 20, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #ffd27a, #ffb300)', filter: 'blur(8px)', opacity: 0.75, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.3s) infinite ease-in-out', ['--pulse-delay' as any]: '0.3s' }} />
-                  <span style={{ position: 'absolute', left: '72%', top: '12%', width: 30, height: 30, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #8affc1, #00d27a)', filter: 'blur(12px)', opacity: 0.7, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.6s) infinite ease-in-out', ['--pulse-delay' as any]: '0.6s' }} />
-                  <span style={{ position: 'absolute', left: '82%', top: '52%', width: 18, height: 18, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #7aa9ff, #0066ff)', filter: 'blur(8px)', opacity: 0.75, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.6s) infinite ease-in-out', ['--pulse-delay' as any]: '0.6s' }} />
-                  <span style={{ position: 'absolute', left: '44%', top: '76%', width: 28, height: 28, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #ff7aea, #ff00c8)', filter: 'blur(10px)', opacity: 0.72, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.2s) infinite ease-in-out', ['--pulse-delay' as any]: '0.2s' }} />
+                  <span style={{ position: 'absolute', left: '6%', top: '18%', width: 26, height: 26, borderRadius: '50%', background: glow1, filter: 'blur(10px)', opacity: 0.8, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0s) infinite ease-in-out', ['--pulse-delay' as any]: '0s' }} />
+                  <span style={{ position: 'absolute', left: '24%', top: '8%', width: 20, height: 20, borderRadius: '50%', background: glow2, filter: 'blur(8px)', opacity: 0.75, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.3s) infinite ease-in-out', ['--pulse-delay' as any]: '0.3s' }} />
+                  <span style={{ position: 'absolute', left: '72%', top: '12%', width: 30, height: 30, borderRadius: '50%', background: glow3, filter: 'blur(12px)', opacity: 0.7, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.6s) infinite ease-in-out', ['--pulse-delay' as any]: '0.6s' }} />
+                  <span style={{ position: 'absolute', left: '82%', top: '52%', width: 18, height: 18, borderRadius: '50%', background: glow4, filter: 'blur(8px)', opacity: 0.75, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.6s) infinite ease-in-out', ['--pulse-delay' as any]: '0.6s' }} />
+                  <span style={{ position: 'absolute', left: '44%', top: '76%', width: 28, height: 28, borderRadius: '50%', background: glow5, filter: 'blur(10px)', opacity: 0.72, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.2s) infinite ease-in-out', ['--pulse-delay' as any]: '0.2s' }} />
                 </div>
 
                 <style>{`
@@ -196,10 +237,10 @@ const Collections = () => {
 
               <p className="text-[#0F0F0F]/60 text-lg">No pieces have been saved yet.</p>
               <p className="text-[#0F0F0F]/40 text-sm">Like items or add them to your cart to see them here.</p>
-              <Link to="/gallery">
+                <Link to="/gallery">
                 <Button 
                   size="lg" 
-                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full px-8 py-4 shadow-lg shadow-orange-500/20 transition-all duration-300"
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full px-8 py-4 shadow-2xl shadow-orange-600/25 transition-all duration-300"
                 >
                   Browse the Style Gallery
                 </Button>
