@@ -25,6 +25,7 @@ export default function ShippingAddressModule({ onSave }: Props) {
   const googleMap = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const geocoderRef = useRef<any>(null);
+  const [loadingLocation, setLoadingLocation] = useState(false);
 
   // Replace with your API key (user provided). Keep key usage secure on your backend if needed.
   const GOOGLE_API_KEY = 'AIzaSyBr4tKPMTXo88v3e_gYEMHZxm4wroUa2XI';
@@ -129,11 +130,13 @@ export default function ShippingAddressModule({ onSave }: Props) {
 
   // Use browser geolocation and populate fields/map
   const handleUseCurrentLocation = () => {
+    setLoadingLocation(true);
     setStatus('Fetching current location...');
     setError(null);
     if (!navigator.geolocation) {
       setError('Geolocation not supported in this browser');
       setStatus(null);
+      setLoadingLocation(false);
       return;
     }
 
@@ -151,12 +154,15 @@ export default function ShippingAddressModule({ onSave }: Props) {
         setStatus('Location applied');
       } catch (e: any) {
         setError('Failed to apply location: ' + (e?.message || e));
+      } finally {
+        setLoadingLocation(false);
       }
     }, (err) => {
       // Handle geolocation errors
       if (err.code === err.PERMISSION_DENIED) setError('Permission denied for location access');
       else setError('Geolocation error: ' + err.message);
       setStatus(null);
+      setLoadingLocation(false);
     }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
   };
 
@@ -254,13 +260,30 @@ export default function ShippingAddressModule({ onSave }: Props) {
       
 
       <div className="mt-6 flex gap-3">
-        <button onClick={handleUseCurrentLocation} className="px-4 py-2 rounded-xl bg-[#D9C6A4] text-[#0F0F0F] font-semibold shadow hover:brightness-95 transition-all">Use Current Location</button>
+        <button onClick={handleUseCurrentLocation} disabled={loadingLocation} className={`px-4 py-2 rounded-xl text-[#0F0F0F] font-semibold shadow hover:brightness-95 transition-all ${loadingLocation ? 'bg-[#d7d1b8] cursor-wait' : 'bg-[#D9C6A4]'}`}>
+          {loadingLocation ? (
+            <span className="inline-flex items-center gap-2">
+              <svg className="animate-spin h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+              Locating...
+            </span>
+          ) : 'Use Current Location'}
+        </button>
         <button onClick={save} className="px-6 py-2 rounded-xl bg-[#0F0F0F] text-white font-semibold shadow hover:bg-[#222] transition-all">Save Address</button>
         <button onClick={() => { setForm({ street: '', flat: '', landmark: '', city: '', state: '', zip: '', country: 'India', addressType: 'Home', deliveryInstructions: '', setAsDefault: false }); }} className="px-4 py-2 rounded-xl border bg-white hover:bg-gray-50">Clear</button>
       </div>
 
       {/* Map placeholder - rendered after location is loaded */}
-      <div ref={mapRef} id="shipping-map" className="w-full h-64 mt-6 rounded-lg overflow-hidden" />
+      <div className="w-full h-64 mt-6 rounded-lg overflow-hidden relative">
+        <div ref={mapRef} id="shipping-map" className="w-full h-full" />
+        {loadingLocation && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+            <div className="flex items-center gap-3 bg-white/90 p-3 rounded shadow">
+              <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+              <span className="text-sm font-medium">Fetching location…</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
