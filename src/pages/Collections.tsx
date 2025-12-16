@@ -53,6 +53,10 @@ const StorageDebugger: React.FC = () => {
 
 const Collections = () => {
   const { cart, likes, addToCart } = useCart();
+  const [pulseDuration, setPulseDuration] = useState(2.8);
+  const [iconFloatDuration, setIconFloatDuration] = useState(1.6);
+  const [iconBlinkDuration, setIconBlinkDuration] = useState(2);
+  const [iconFloatDist, setIconFloatDist] = useState(14);
   
   // Combine cart and likes, removing duplicates by id
   // Show only liked/saved items in Collections (do not auto-include cart items)
@@ -131,7 +135,15 @@ const Collections = () => {
               )}
             </>
           ) : (
-            <div className="text-center py-20 space-y-6 collections-anim" style={{ ['--pulse-duration' as any]: '2.8s', ['--icon-float-duration' as any]: '1.6s', ['--icon-blink-duration' as any]: '2s', ['--icon-float-dist' as any]: '14px' } as React.CSSProperties}>
+            <div
+              className="text-center py-20 space-y-6 collections-anim"
+              style={{
+                ['--pulse-duration' as any]: `${pulseDuration}s`,
+                ['--icon-float-duration' as any]: `${iconFloatDuration}s`,
+                ['--icon-blink-duration' as any]: `${iconBlinkDuration}s`,
+                ['--icon-float-dist' as any]: `${iconFloatDist}px`
+              } as React.CSSProperties}
+            >
               <div className="relative w-72 h-72 mx-auto mb-6">
                 <div
                   className="absolute inset-0 rounded-full overflow-hidden"
@@ -192,6 +204,29 @@ const Collections = () => {
                   Browse the Style Gallery
                 </Button>
               </Link>
+              {/* Live tweak controls */}
+              <div className="mt-6 max-w-md mx-auto bg-white/60 backdrop-blur rounded-lg p-4 shadow-inner flex flex-col gap-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-[#0F0F0F]/70">Pulse duration (s)</label>
+                  <input type="range" min="0.6" max="6" step="0.1" value={pulseDuration} onChange={(e) => setPulseDuration(Number(e.target.value))} className="w-48" />
+                  <span className="ml-2 w-10 text-right">{pulseDuration.toFixed(1)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-[#0F0F0F]/70">Icon float (s)</label>
+                  <input type="range" min="0.4" max="3" step="0.1" value={iconFloatDuration} onChange={(e) => setIconFloatDuration(Number(e.target.value))} className="w-48" />
+                  <span className="ml-2 w-10 text-right">{iconFloatDuration.toFixed(1)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-[#0F0F0F]/70">Icon blink (s)</label>
+                  <input type="range" min="0.6" max="4" step="0.1" value={iconBlinkDuration} onChange={(e) => setIconBlinkDuration(Number(e.target.value))} className="w-48" />
+                  <span className="ml-2 w-10 text-right">{iconBlinkDuration.toFixed(1)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-[#0F0F0F]/70">Float distance (px)</label>
+                  <input type="range" min="4" max="36" step="1" value={iconFloatDist} onChange={(e) => setIconFloatDist(Number(e.target.value))} className="w-48" />
+                  <span className="ml-2 w-10 text-right">{iconFloatDist}px</span>
+                </div>
+              </div>
             </div>
           )}
         </main>
