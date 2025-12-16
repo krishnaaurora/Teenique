@@ -55,24 +55,12 @@ const Collections = () => {
   const { cart, likes, addToCart } = useCart();
   
   // Combine cart and likes, removing duplicates by id
-  const cartProducts = cart.map(item => ({ id: item.id, name: item.name, price: item.price, image: item.image, category: item.category, color: item.color, size: item.size }));
-
-  // Start with likes (ensure image fallback)
+  // Show only liked/saved items in Collections (do not auto-include cart items)
   const allItems: any[] = likes.map((l) => ({
     ...l,
     image: l.image || allProducts.find(p => p.id === l.id)?.image,
   }));
 
-  // Add cart items that aren't already in likes (ensure fallback image)
-  cartProducts.forEach(cartItem => {
-    if (!allItems.some(item => item.id === cartItem.id && item.color === cartItem.color && item.size === cartItem.size)) {
-      allItems.push({
-        ...cartItem,
-        image: cartItem.image || allProducts.find(p => p.id === cartItem.id)?.image,
-      });
-    }
-  });
-  
   const hasItems = allItems.length > 0;
   const hasCartItems = cart.length > 0;
   const hasLikedItems = likes.length > 0;
