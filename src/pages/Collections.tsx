@@ -53,51 +53,7 @@ const StorageDebugger: React.FC = () => {
 
 const Collections = () => {
   const { cart, likes, addToCart } = useCart();
-  const [pulseDuration, setPulseDuration] = useState(2.8);
-  const [iconFloatDuration, setIconFloatDuration] = useState(1.6);
-  const [iconBlinkDuration, setIconBlinkDuration] = useState(2);
-  const [iconFloatDist, setIconFloatDist] = useState(14);
-  const [glow1, setGlow1] = useState('radial-gradient(circle at 30% 30%, #ff7a7a, #ff3d00)');
-  const [glow2, setGlow2] = useState('radial-gradient(circle at 30% 30%, #ffd27a, #ffb300)');
-  const [glow3, setGlow3] = useState('radial-gradient(circle at 30% 30%, #8affc1, #00d27a)');
-  const [glow4, setGlow4] = useState('radial-gradient(circle at 30% 30%, #7aa9ff, #0066ff)');
-  const [glow5, setGlow5] = useState('radial-gradient(circle at 30% 30%, #ff7aea, #ff00c8)');
-
-  const applyPreset = (name: 'subtle' | 'lively' | 'disco') => {
-    if (name === 'subtle') {
-      setPulseDuration(3.4);
-      setIconFloatDuration(1.2);
-      setIconBlinkDuration(2.4);
-      setIconFloatDist(10);
-      setGlow1('radial-gradient(circle at 30% 30%, #ffdca8, #f6d7c3)');
-      setGlow2('radial-gradient(circle at 30% 30%, #efe6d6, #e6dfd3)');
-      setGlow3('radial-gradient(circle at 30% 30%, #dfe9e6, #cfdedf)');
-      setGlow4('radial-gradient(circle at 30% 30%, #e9eef8, #dfe8ff)');
-      setGlow5('radial-gradient(circle at 30% 30%, #f8eef7, #f2e7f5)');
-    }
-    if (name === 'lively') {
-      setPulseDuration(2.6);
-      setIconFloatDuration(1.6);
-      setIconBlinkDuration(1.9);
-      setIconFloatDist(14);
-      setGlow1('radial-gradient(circle at 30% 30%, #ff9a88, #ff5a2e)');
-      setGlow2('radial-gradient(circle at 30% 30%, #ffe59a, #ffbf3a)');
-      setGlow3('radial-gradient(circle at 30% 30%, #9fffd3, #00d27a)');
-      setGlow4('radial-gradient(circle at 30% 30%, #9fbfff, #0080ff)');
-      setGlow5('radial-gradient(circle at 30% 30%, #ff9af0, #ff3ec8)');
-    }
-    if (name === 'disco') {
-      setPulseDuration(1.6);
-      setIconFloatDuration(0.9);
-      setIconBlinkDuration(0.9);
-      setIconFloatDist(18);
-      setGlow1('radial-gradient(circle at 30% 30%, #ff2d6f, #ff7a00)');
-      setGlow2('radial-gradient(circle at 30% 30%, #ffd700, #ff70f0)');
-      setGlow3('radial-gradient(circle at 30% 30%, #00fff2, #00bfa5)');
-      setGlow4('radial-gradient(circle at 30% 30%, #335bff, #6b00ff)');
-      setGlow5('radial-gradient(circle at 30% 30%, #ff00b8, #ff6b00)');
-    }
-  };
+  
   
   // Combine cart and likes, removing duplicates by id
   // Show only liked/saved items in Collections (do not auto-include cart items)
@@ -123,8 +79,9 @@ const Collections = () => {
 
   return (
     <FashionLayout>
-      <div className="min-h-screen pt-8 lg:pt-0 bg-[#F5F3EF]">
-        <main className="container px-4 py-16 md:py-24 lg:pl-8">
+      <div className="min-h-screen pt-8 lg:pt-0" style={{ backgroundImage: "url('/image.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="absolute inset-0 bg-black/12" />
+        <main className="container px-4 py-16 md:py-24 lg:pl-8 relative z-10">
           <div className="text-center mb-12">
             <p className="uppercase tracking-[0.3em] text-sm text-[#D9C6A4] mb-4">Saved Looks</p>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[#0F0F0F] mb-4 tracking-tight">
@@ -176,68 +133,14 @@ const Collections = () => {
               )}
             </>
           ) : (
-            <div
-              className="text-center py-20 space-y-6 collections-anim"
-              style={{
-                ['--pulse-duration' as any]: `${pulseDuration}s`,
-                ['--icon-float-duration' as any]: `${iconFloatDuration}s`,
-                ['--icon-blink-duration' as any]: `${iconBlinkDuration}s`,
-                ['--icon-float-dist' as any]: `${iconFloatDist}px`
-              } as React.CSSProperties}
-            >
-              <div className="relative w-72 h-72 mx-auto mb-6">
-                <div
-                  className="absolute inset-0 rounded-full overflow-hidden"
-                  style={{
-                    backgroundImage: "url('/image.png')",
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    filter: 'brightness(0.95)'
-                  }}
-                />
-
-                <div className="absolute inset-0 rounded-full bg-black/6" />
-
-                <div className="absolute inset-0 z-20 flex items-center justify-center">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <ShoppingBag
-                      className="w-14 h-14 text-white"
-                      style={{ animation: 'iconFloat var(--icon-float-duration) ease-in-out infinite, iconBlink var(--icon-blink-duration) linear infinite' }}
-                    />
-                  </div>
-                </div>
-
-                <div className="absolute inset-0 z-10 pointer-events-none">
-                  <span style={{ position: 'absolute', left: '6%', top: '18%', width: 26, height: 26, borderRadius: '50%', background: glow1, filter: 'blur(10px)', opacity: 0.8, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0s) infinite ease-in-out', ['--pulse-delay' as any]: '0s' }} />
-                  <span style={{ position: 'absolute', left: '24%', top: '8%', width: 20, height: 20, borderRadius: '50%', background: glow2, filter: 'blur(8px)', opacity: 0.75, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.3s) infinite ease-in-out', ['--pulse-delay' as any]: '0.3s' }} />
-                  <span style={{ position: 'absolute', left: '72%', top: '12%', width: 30, height: 30, borderRadius: '50%', background: glow3, filter: 'blur(12px)', opacity: 0.7, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.6s) infinite ease-in-out', ['--pulse-delay' as any]: '0.6s' }} />
-                  <span style={{ position: 'absolute', left: '82%', top: '52%', width: 18, height: 18, borderRadius: '50%', background: glow4, filter: 'blur(8px)', opacity: 0.75, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.6s) infinite ease-in-out', ['--pulse-delay' as any]: '0.6s' }} />
-                  <span style={{ position: 'absolute', left: '44%', top: '76%', width: 28, height: 28, borderRadius: '50%', background: glow5, filter: 'blur(10px)', opacity: 0.72, animation: 'pulse var(--pulse-duration) var(--pulse-delay, 0.2s) infinite ease-in-out', ['--pulse-delay' as any]: '0.2s' }} />
-                </div>
-
-                <style>{`
-                  @keyframes pulse {
-                    0% { opacity: 0.25; transform: scale(0.9); }
-                    50% { opacity: 1; transform: scale(1.06); }
-                    100% { opacity: 0.25; transform: scale(0.9); }
-                  }
-                  @keyframes iconFloat {
-                    0% { transform: translateY(0); }
-                    50% { transform: translateY(-var(--icon-float-dist)); }
-                    100% { transform: translateY(0); }
-                  }
-                  @keyframes iconBlink {
-                    0% { opacity: 0.95; }
-                    45% { opacity: 1; }
-                    55% { opacity: 0.6; }
-                    100% { opacity: 0.95; }
-                  }
-                `}</style>
+            <div className="text-center py-20 space-y-6">
+              <div className="mx-auto mb-6 max-w-4xl">
+                <div className="w-full h-64 md:h-96 rounded-xl overflow-hidden shadow-inner" style={{ backgroundImage: "url('/image.png')", backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.9)' }} />
               </div>
 
               <p className="text-[#0F0F0F]/60 text-lg">No pieces have been saved yet.</p>
               <p className="text-[#0F0F0F]/40 text-sm">Like items or add them to your cart to see them here.</p>
-                <Link to="/gallery">
+              <Link to="/gallery">
                 <Button 
                   size="lg" 
                   className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full px-8 py-4 shadow-2xl shadow-orange-600/25 transition-all duration-300"
@@ -245,29 +148,6 @@ const Collections = () => {
                   Browse the Style Gallery
                 </Button>
               </Link>
-              {/* Live tweak controls */}
-              <div className="mt-6 max-w-md mx-auto bg-white/60 backdrop-blur rounded-lg p-4 shadow-inner flex flex-col gap-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs text-[#0F0F0F]/70">Pulse duration (s)</label>
-                  <input type="range" min="0.6" max="6" step="0.1" value={pulseDuration} onChange={(e) => setPulseDuration(Number(e.target.value))} className="w-48" />
-                  <span className="ml-2 w-10 text-right">{pulseDuration.toFixed(1)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-xs text-[#0F0F0F]/70">Icon float (s)</label>
-                  <input type="range" min="0.4" max="3" step="0.1" value={iconFloatDuration} onChange={(e) => setIconFloatDuration(Number(e.target.value))} className="w-48" />
-                  <span className="ml-2 w-10 text-right">{iconFloatDuration.toFixed(1)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-xs text-[#0F0F0F]/70">Icon blink (s)</label>
-                  <input type="range" min="0.6" max="4" step="0.1" value={iconBlinkDuration} onChange={(e) => setIconBlinkDuration(Number(e.target.value))} className="w-48" />
-                  <span className="ml-2 w-10 text-right">{iconBlinkDuration.toFixed(1)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-xs text-[#0F0F0F]/70">Float distance (px)</label>
-                  <input type="range" min="4" max="36" step="1" value={iconFloatDist} onChange={(e) => setIconFloatDist(Number(e.target.value))} className="w-48" />
-                  <span className="ml-2 w-10 text-right">{iconFloatDist}px</span>
-                </div>
-              </div>
             </div>
           )}
         </main>
