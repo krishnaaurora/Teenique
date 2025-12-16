@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { products as allProducts } from "@/data/products";
 import FashionLayout from "@/components/FashionLayout";
 import { useCart } from "@/contexts/CartContext";
@@ -16,7 +16,8 @@ import {
   Send,
 } from "lucide-react";
 import { toast } from "sonner";
-import locationLib from '@/lib/location';
+// locationLib and geolocation features removed
+import ShippingAddressModule from '@/components/ShippingAddressModule';
 
 const INDIA_STATES: Record<string, string[]> = {
   "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Tirupati"],
@@ -171,7 +172,7 @@ const Checkout = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [appliedPromo, setAppliedPromo] = useState(false);
   const [customerNotes, setCustomerNotes] = useState("");
-  const [locationLink, setLocationLink] = useState("");
+  
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -179,10 +180,15 @@ const Checkout = () => {
     email: "",
     phone: "",
     street: "",
+    flat: "",
+    landmark: "",
     city: "",
     state: "",
     zip: "",
     country: "India",
+    addressType: "Home",
+    deliveryInstructions: "",
+    setAsDefault: false,
     promoCode: "",
   });
 
@@ -196,6 +202,8 @@ const Checkout = () => {
 
   const availableStates = formData.country === "India" ? Object.keys(INDIA_STATES) : [];
   const availableCities = formData.state && INDIA_STATES[formData.state] ? INDIA_STATES[formData.state] : [];
+
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -239,6 +247,8 @@ Quantity: ${item.quantity}`
     // Build delivery address
     const deliveryAddress = [
       formData.street,
+      formData.flat,
+      formData.landmark,
       formData.city,
       formData.state,
       formData.zip,
@@ -264,8 +274,12 @@ Customer Notes:
 ${customerNotes || "(No notes)"}
 
 Delivery Location:
-${deliveryAddress || "Not provided"}
-${locationLink ? `Map: ${locationLink}` : ""}
+  ${deliveryAddress || "Not provided"}
+
+Address Type: ${formData.addressType || 'Home'}
+Delivery Instructions: ${formData.deliveryInstructions || '(none)'}
+
+Set as default: ${formData.setAsDefault ? 'Yes' : 'No'}
 
 Please confirm availability.`;
 
@@ -274,160 +288,6 @@ Please confirm availability.`;
 
   const whatsappLink = `https://wa.me/919866685221?text=${generateWhatsAppMessage()}`;
   const isCartEmpty = cart.length === 0;
-
-  // Diagnostics for geolocation
-  const [geoStatus, setGeoStatus] = useState<'idle'|'prompt'|'granted'|'denied'|'approximate'|'error'>('idle');
-  const [lastGeoError, setLastGeoError] = useState<string | null>(null);
-  const [lastCoords, setLastCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [googleRaw, setGoogleRaw] = useState<any | null>(null);
-  const [showGoogleRaw, setShowGoogleRaw] = useState(false);
-
-  // Get current location and auto-fill address using reverse geocoding
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser.");
-      return;
-    }
-
-    // Quick permission check when possible
-    (async () => {
-      try {
-        const perms = (navigator as any).permissions;
-        if (perms && perms.query) {
-          const status = await perms.query({ name: 'geolocation' } as any);
-          if (status.state === 'denied') {
-            toast.error("Location access is blocked. Enable location in your browser settings.", { id: 'location' });
-            return;
-          }
-        }
-      } catch (e) {
-        // ignore permissions API errors
-      }
-
-      toast.loading("Getting your location...", { id: 'location' });
-
-      const getPosition = (opts: PositionOptions) =>
-        new Promise<GeolocationPosition>((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject, opts)
-        );
-
-      let coords: { latitude: number; longitude: number } | null = null;
-
-      // Try high accuracy first with longer timeout
-      try {
-        const p = await getPosition({ enableHighAccuracy: true, timeout: 25000, maximumAge: 0 });
-        coords = { latitude: p.coords.latitude, longitude: p.coords.longitude };
-        setGeoStatus('granted');
-        setLastGeoError(null);
-        setLastCoords({ lat: coords.latitude, lng: coords.longitude });
-      } catch (err1) {
-        console.warn('High-accuracy geolocation failed, retrying with lower accuracy', err1);
-        setGeoStatus('prompt');
-        setLastGeoError(String(err1?.message || err1));
-        toast("High-accuracy location failed, trying faster mode...");
-        // Try lower accuracy (faster) as fallback
-        try {
-          const p2 = await getPosition({ enableHighAccuracy: false, timeout: 20000, maximumAge: 60000 });
-          coords = { latitude: p2.coords.latitude, longitude: p2.coords.longitude };
-          setGeoStatus('granted');
-          setLastGeoError(null);
-          setLastCoords({ lat: coords.latitude, lng: coords.longitude });
-        } catch (err2) {
-          console.warn('Low-accuracy geolocation failed, falling back to IP-based lookup', err2);
-          setLastGeoError(String(err2?.message || err2));
-          // Fallback: IP-based geolocation (approximate)
-          try {
-            const ipRes = await fetch('https://ipapi.co/json/');
-            if (ipRes.ok) {
-              const ipData = await ipRes.json();
-              if (ipData && ipData.latitude && ipData.longitude) {
-                coords = { latitude: Number(ipData.latitude), longitude: Number(ipData.longitude) };
-                setGeoStatus('approximate');
-                setLastCoords({ lat: coords.latitude, lng: coords.longitude });
-                setLastGeoError(null);
-                toast('Using approximate location from IP address');
-              }
-            }
-          } catch (ipErr) {
-            console.warn('IP geolocation failed', ipErr);
-            setLastGeoError(String(ipErr?.message || ipErr));
-          }
-        }
-      }
-
-      if (!coords) {
-        setGeoStatus('error');
-        toast.error('Could not determine your location. Please enter address manually.', { id: 'location' });
-        return;
-      }
-
-      const { latitude, longitude } = coords;
-      const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-      setLocationLink(mapsLink);
-
-      // Reverse geocode (Google if key set, otherwise Nominatim)
-      const googleKey = (import.meta.env as any).VITE_GOOGLE_API_KEY;
-          try {
-            if (googleKey) {
-              try {
-                const res = await locationLib.reverseGeocode(latitude, longitude, googleKey);
-                // keep the raw response for debugging
-                setGoogleRaw(res);
-                const chosen = res?.chosen || (res?.results && res.results[0]);
-                const formatted = chosen?.formatted_address;
-                const components = chosen?.address_components || [];
-            const compMap: Record<string, string> = {};
-            for (const c of components) {
-              for (const t of c.types) compMap[t] = c.long_name;
-            }
-            const street = [compMap['street_number'], compMap['route']].filter(Boolean).join(' ');
-            const city = compMap['locality'] || compMap['administrative_area_level_2'] || compMap['postal_town'] || '';
-            const state = compMap['administrative_area_level_1'] || '';
-            const zip = compMap['postal_code'] || '';
-            setFormData(prev => ({
-              ...prev,
-              street: street || formatted || prev.street,
-              city: city || prev.city,
-              state: state || prev.state,
-              zip: zip || prev.zip,
-            }));
-            setGeoStatus('granted');
-            toast.success('Address filled automatically!', { id: 'location' });
-            return;
-          } catch (gErr) {
-            console.warn('Google reverse geocode failed, falling back to Nominatim', gErr);
-          }
-        }
-
-        // Nominatim fallback
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
-          { headers: { 'Accept-Language': 'en' } }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          const address = data.address || {};
-          const street = [address.house_number, address.road || address.street, address.neighbourhood || address.suburb].filter(Boolean).join(', ');
-          const city = address.city || address.town || address.village || address.county || '';
-          const state = address.state || '';
-          const zip = address.postcode || '';
-          setFormData(prev => ({
-            ...prev,
-            street: street || prev.street,
-            city: city || prev.city,
-            state: state || prev.state,
-            zip: zip || prev.zip,
-          }));
-          toast.success('Address filled automatically!', { id: 'location' });
-        } else {
-          toast.success('Location captured! Please fill address manually.', { id: 'location' });
-        }
-      } catch (error) {
-        console.error('Reverse geocoding error:', error);
-        toast.success('Location captured! Please verify address.', { id: 'location' });
-      }
-    })();
-  };
 
   if (orderPlaced) {
     return (
@@ -543,74 +403,26 @@ Please confirm availability.`;
               </div>
             </div>
 
-            {/* Shipping Address */}
             <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-lg border border-[#E8E4DE]">
-              <h2 className="text-2xl font-serif font-light text-[#0F0F0F] mb-6 flex items-center gap-3">
-                <span className="w-8 h-8 bg-[#D9C6A4]/20 rounded-full flex items-center justify-center text-[#D9C6A4] font-medium text-sm">2</span>
-                Shipping Address
-              </h2>
-
-              <div className="space-y-4">
-                <FloatingInput label="Street Address" name="street" value={formData.street} onChange={handleInputChange} error={errors.street} placeholder="123 Fashion Street" />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FloatingSelect label="State" name="state" value={formData.state} onChange={handleStateChange} options={availableStates} error={errors.state} />
-                  <FloatingSelect label="City" name="city" value={formData.city} onChange={handleInputChange} options={availableCities} error={errors.city} disabled={!formData.state} />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FloatingInput label="ZIP Code" name="zip" value={formData.zip} onChange={handleInputChange} error={errors.zip} placeholder="500001" />
-                  <div className="relative">
-                    <div className="w-full h-16 px-6 pt-6 pb-2 rounded-full bg-[#F5F3EF] border-2 border-[#E8E4DE] flex items-center">
-                      <span className="text-base font-medium text-[#0F0F0F]">India 🇮🇳</span>
-                    </div>
-                    <label className="absolute left-6 top-2 text-xs font-medium text-[#D9C6A4]">Country</label>
-                  </div>
-                </div>
-
-                {/* Location Link */}
-                <div className="pt-4 border-t border-[#E8E4DE]">
-                  <div className="flex items-center gap-3 mb-3">
-                    <MapPin className="w-5 h-5 text-[#D9C6A4]" />
-                    <span className="font-medium text-[#0F0F0F]">Auto-Fill Address</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={handleGetLocation}
-                      className="flex-1 h-12 px-4 bg-[#D9C6A4]/20 hover:bg-[#D9C6A4]/30 text-[#0F0F0F] font-medium rounded-full transition-all flex items-center justify-center gap-2"
-                    >
-                      <MapPin className="w-4 h-4" />
-                      Use My Location
-                    </button>
-                  </div>
-                  {locationLink && (
-                    <div className="mt-3 p-3 bg-[#D9C6A4]/10 rounded-xl border border-[#D9C6A4]/30">
-                      <p className="text-sm text-[#0F0F0F] font-medium">✓ Address auto-filled from your location!</p>
-                      <a href={locationLink} target="_blank" rel="noopener noreferrer" className="text-xs text-[#D9C6A4] underline truncate block">
-                        View on Google Maps
-                      </a>
-                    </div>
-                  )}
-                  {/* Geo diagnostics */}
-                  <div className="mt-3 text-xs text-[#6B6B6B]">
-                    <div>Permission status: <span className="font-medium text-[#0F0F0F]">{geoStatus}</span></div>
-                    {lastCoords && <div>Last coords: {lastCoords.lat.toFixed(5)}, {lastCoords.lng.toFixed(5)}</div>}
-                    {lastGeoError && <div className="text-red-500">Last error: {lastGeoError}</div>}
-                      {googleRaw && (
-                        <div className="mt-2">
-                          <button onClick={() => setShowGoogleRaw(s => !s)} className="text-xs text-[#0F0F0F] underline">
-                            {showGoogleRaw ? 'Hide' : 'Show'} raw geocode debug info
-                          </button>
-                          {showGoogleRaw && (
-                            <pre className="mt-2 p-2 bg-[#F5F3EF] rounded text-xs overflow-auto max-h-48">{JSON.stringify(googleRaw?.chosen || googleRaw?.results?.[0] || googleRaw, null, 2)}</pre>
-                          )}
-                        </div>
-                      )}
-                    <div className="mt-2 text-xs text-[#6B6B6B]">If location access is denied or times out, try enabling location in your browser or use the address fields manually.</div>
-                  </div>
-                </div>
-              </div>
+              <ShippingAddressModule
+                onSave={(payload: any) => {
+                  // merge payload into Checkout form state
+                  setFormData((prev) => ({
+                    ...prev,
+                    street: payload.street || prev.street,
+                    flat: payload.flat || prev.flat,
+                    landmark: payload.landmark || prev.landmark,
+                    city: payload.city || prev.city,
+                    state: payload.state || prev.state,
+                    zip: payload.zip || prev.zip,
+                    addressType: payload.addressType || prev.addressType,
+                    deliveryInstructions: payload.deliveryInstructions || prev.deliveryInstructions,
+                    setAsDefault: typeof payload.setAsDefault === 'boolean' ? payload.setAsDefault : prev.setAsDefault,
+                  }));
+                  
+                  toast.success('Address saved');
+                }}
+              />
             </div>
 
             {/* Customer Notes */}
@@ -626,6 +438,8 @@ Please confirm availability.`;
                 className="w-full h-32 px-6 py-4 rounded-xl bg-[#F5F3EF] border-2 border-[#E8E4DE] focus:border-[#D9C6A4] focus:bg-white outline-none transition-all text-base font-medium resize-none text-[#0F0F0F] placeholder-[#6B6B6B]"
               />
             </div>
+
+            {/* Billing Details removed */}
 
             {/* WhatsApp Contact Section - Mobile */}
             <div className="lg:hidden">
@@ -673,6 +487,9 @@ Please confirm availability.`;
               </div>
             </div>
           </div>
+
+          {/* Geocode suggestions modal */}
+          
 
           {/* Right Column - Order Summary */}
           <div className="lg:col-span-5">

@@ -3,7 +3,6 @@ import { useCart } from "@/contexts/CartContext";
 import { useState, useEffect } from "react";
 import { ShoppingCart, X } from "lucide-react";
 import logo from "@/assets/image-removebg-preview.png";
-import LocationPicker from "@/components/LocationPicker";
 
 interface HeaderProps {
   forceWhiteText?: boolean;
@@ -112,9 +111,7 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
         {/* Right spacer or cart for centered layout */}
         {centerLogo && <div className="flex-1 flex justify-end" />}
 
-        <div className={`hidden md:flex items-center mr-4`}>
-          <LocationPicker apiKey={(import.meta.env as any).VITE_GOOGLE_API_KEY} />
-        </div>
+        {/* Location picker removed */}
 
         <div className={`relative ${centerLogo ? "" : ""}`}>
           <button

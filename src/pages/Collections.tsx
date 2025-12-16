@@ -79,9 +79,8 @@ const Collections = () => {
 
   return (
     <FashionLayout>
-      <div className="min-h-screen pt-8 lg:pt-0" style={{ backgroundImage: "url('/image%20copy.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div className="absolute inset-0 bg-black/12" />
-        <main className="container px-4 py-16 md:py-24 lg:pl-8 relative z-10">
+      <div className="min-h-screen pt-8 lg:pt-0 bg-[#F5F3EF]">
+        <main className="container px-4 py-16 md:py-24 lg:pl-8">
           <div className="text-center mb-12">
             <p className="uppercase tracking-[0.3em] text-sm text-[#D9C6A4] mb-4">Saved Looks</p>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[#0F0F0F] mb-4 tracking-tight">
