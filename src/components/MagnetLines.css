@@ -1,0 +1,32 @@
+.magnetLines-container {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  grid-template-rows: repeat(var(--rows), 1fr);
+
+  justify-items: center;
+  align-items: center;
+
+  width: 100vmin;
+  height: 80vmin;
+}
+
+.magnetLines-container span {
+  display: block;
+  transform-origin: center;
+  will-change: transform;
+  transform: rotate(var(--rotate));
+}
+
+.magnetLines-container span {
+  animation: ml-float-var 10s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.05s);
+}
+
+/* Reduced motion: disable float and fade animations */
+.magnetLines-container.reduced-motion {
+  animation: none !important;
+}
+.magnetLines-container.reduced-motion span {
+  animation: none !important;
+  transition: background-color 120ms linear, transform 120ms linear;
+}

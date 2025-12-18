@@ -315,11 +315,25 @@ export default function ShippingAddressModule({ onSave }: Props) {
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium mb-1">Address Type</label>
-          <select value={form.addressType} onChange={(e) => setField('addressType', e.target.value)} className="w-full p-3 rounded-lg border focus:ring-2 focus:ring-[#D9C6A4] focus:border-[#D9C6A4] mt-1 bg-white">
-            <option>Home</option>
-            <option>Work</option>
-            <option>Other</option>
-          </select>
+          <div className="flex gap-2 mt-1">
+            {[
+              { label: 'Home', icon: '🏠' },
+              { label: 'Work', icon: '🏢' },
+              { label: 'Other', icon: '📍' },
+            ].map((type) => (
+              <button
+                key={type.label}
+                type="button"
+                onClick={() => setField('addressType', type.label)}
+                className={`flex items-center gap-1 px-4 py-2 rounded-full border font-medium transition-all text-sm
+                  ${form.addressType === type.label ? 'bg-[#D9C6A4] text-[#0F0F0F] border-[#D9C6A4] shadow' : 'bg-white text-[#6B6B6B] border-[#E8E4DE] hover:bg-[#f5f3ef]'}
+                `}
+                aria-pressed={form.addressType === type.label}
+              >
+                <span className="text-lg">{type.icon}</span> {type.label}
+              </button>
+            ))}
+          </div>
         </div>
         <div>
           <label className="text-sm font-medium mb-1">Delivery Instructions</label>

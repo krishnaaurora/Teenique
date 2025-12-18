@@ -5,51 +5,6 @@ import { useCart } from "@/contexts/CartContext";
 import { Link } from "react-router-dom";
 import { ShoppingBag, ArrowRight, Heart } from "lucide-react";
 import { products as allProducts } from "@/data/products";
-import { useState } from "react";
-
-const StorageDebugger: React.FC = () => {
-  const [open, setOpen] = useState(false);
-  const [data, setData] = useState<{ cart?: any; likes?: any; collections?: any }>({});
-
-  const load = () => {
-    try {
-      const cart = JSON.parse(localStorage.getItem('teenique_cart') || '[]');
-      const likes = JSON.parse(localStorage.getItem('teenique_likes') || '[]');
-      const collections = JSON.parse(localStorage.getItem('teenique_collections') || '[]');
-      setData({ cart, likes, collections });
-      setOpen(true);
-    } catch (e) {
-      setData({});
-      setOpen(true);
-    }
-  };
-
-  return (
-    <div className="flex justify-center">
-      <button
-        onClick={load}
-        className="px-4 py-2 bg-[#F5F3EF] border border-[#E8E4DE] rounded-full text-sm hover:bg-white"
-      >
-        Show Stored Collections
-      </button>
-
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-white rounded-xl max-w-3xl w-full p-6 overflow-auto max-h-[80vh]">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Local Storage: teenique_*</h3>
-              <div className="flex items-center gap-2">
-                <button onClick={() => { navigator.clipboard?.writeText(JSON.stringify(data)); }} className="text-sm text-[#0F0F0F] px-3 py-1 rounded bg-[#F5F3EF]">Copy</button>
-                <button onClick={() => setOpen(false)} className="text-sm text-red-500">Close</button>
-              </div>
-            </div>
-            <pre className="whitespace-pre-wrap text-xs bg-[#F5F3EF] p-3 rounded">{JSON.stringify(data, null, 2)}</pre>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 const Collections = () => {
   const { cart, likes, addToCart } = useCart();
@@ -129,13 +84,11 @@ const Collections = () => {
         <div aria-hidden style={gradientStyle} className="gradient-shader-bg" />
         <main className="container px-4 py-16 md:py-24 lg:pl-8 relative">
           <div className="text-center mb-12">
-            <p className="uppercase tracking-[0.3em] text-sm text-[#D9C6A4] mb-4">Saved Looks</p>
+            <p className="uppercase tracking-[0.3em] text-sm text-[#111] mb-4">Saved Looks</p>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[#0F0F0F] mb-4 tracking-tight">
               Your Collections
             </h1>
-            <p className="text-[#0F0F0F]/60 max-w-2xl mx-auto text-lg">
-              Your favorites and cart items in one place. Revisit your liked pieces and items ready for checkout.
-            </p>
+            {/* Removed descriptive text as requested */}
             
             {/* Stats */}
             {hasItems && (
@@ -150,10 +103,6 @@ const Collections = () => {
                 </div>
               </div>
             )}
-            {/* Dev: show storage contents */}
-            <div className="mt-4">
-              <StorageDebugger />
-            </div>
           </div>
 
           {hasItems ? (
