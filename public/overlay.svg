@@ -6,7 +6,7 @@
   </defs>
   <rect width="100%" height="100%" fill="transparent" />
   <g filter="url(#shadow)">
-    <text x="200" y="220" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="140" fill="#0e0e0e" font-weight="600">Teenique</text>
+    <text x="200" y="220" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="90" fill="#0e0e0e" font-weight="600">Teenique</text>
     <text x="200" y="320" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="56" fill="#0e0e0e" font-weight="400">Elegance Redefined for GenZ</text>
   </g>
 </svg>

@@ -82,9 +82,9 @@ const Index = () => {
           />
         </div>
         <div className="relative z-10 flex flex-col items-center justify-center w-full">
-          <h1 className="text-6xl md:text-9xl font-extrabold leading-tight mb-2 mt-4 text-[#111111] flex flex-wrap items-end justify-center hover:-translate-y-0.5 transition-transform"
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-2 mt-4 text-[#111111] flex flex-wrap items-end justify-center hover:-translate-y-0.5 transition-transform"
             style={{
-              transform: animate ? 'translateY(0)' : 'translateY(12px)',
+              transform: animate ? 'translateY(0)' : 'translateY(8px)',
               opacity: (animate ? 1 : 0) * (1 - scrollFade * 0.08),
               transition: 'transform 600ms cubic-bezier(0.22,1,0.36,1), opacity 600ms cubic-bezier(0.22,1,0.36,1)'
             }}
@@ -98,7 +98,7 @@ const Index = () => {
                   style={{
                     display: 'inline-block',
                     opacity: animate ? 1 : 0,
-                    transform: animate ? 'translateY(0)' : `translateY(${isMobile ? 6 : 12}px)`,
+                    transform: animate ? 'translateY(0)' : `translateY(${isMobile ? 4 : 8}px)`,
                     transition: prefersReducedMotion
                       ? `opacity ${isMobile ? 250 : 400}ms linear ${delay}ms`
                       : `opacity ${isMobile ? 450 : 600}ms cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform ${isMobile ? 450 : 600}ms cubic-bezier(0.22,1,0.36,1) ${delay}ms`
@@ -109,10 +109,10 @@ const Index = () => {
               );
             })}
           </h1>
-          <h2 className="text-4xl md:text-7xl font-bold mb-4 mt-2 text-center"
+          <h2 className="text-2xl md:text-4xl font-bold mb-4 mt-2 text-center"
             style={{
               color: '#FF6B5C', // Warm coral for Elegance Redesigned
-              transform: animate ? 'translateY(0)' : `translateY(${isMobile ? 6 : 8}px)`,
+              transform: animate ? 'translateY(0)' : `translateY(${isMobile ? 4 : 6}px)`,
               opacity: (animate ? 1 : 0) * (1 - scrollFade * 0.08),
               transition: `transform ${isMobile ? 500 : 650}ms cubic-bezier(0.22,1,0.36,1) 150ms, opacity ${isMobile ? 500 : 650}ms cubic-bezier(0.22,1,0.36,1) 150ms`,
               filter: 'saturate(0.93)'

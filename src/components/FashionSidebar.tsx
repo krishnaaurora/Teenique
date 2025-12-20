@@ -107,7 +107,7 @@ const FashionSidebar = () => {
               ${isExpanded || isMobile ? "w-auto opacity-100" : "w-0 opacity-0"}
             `}
           >
-            <h1 className={`text-lg tracking-[0.3em] ${theme.text} whitespace-nowrap font-bold`} style={{ fontFamily: "'Bodoni Moda', serif" }}>
+            <h1 className={`text-base tracking-[0.3em] ${theme.text} whitespace-nowrap font-bold`} style={{ fontFamily: "'Bodoni Moda', serif" }}>
               TEENIQUE
             </h1>
             <p className={`text-[10px] tracking-[0.2em] ${theme.text} uppercase font-bold`} style={{ fontFamily: "'Inter', sans-serif" }}>
