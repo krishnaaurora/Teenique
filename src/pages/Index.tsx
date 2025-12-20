@@ -139,8 +139,8 @@ const Index = () => {
                 opacity: animateStats ? 1 : 0,
                 transition: `transform 500ms cubic-bezier(0.22,1,0.36,1) ${idx*120}ms, opacity 500ms cubic-bezier(0.22,1,0.36,1) ${idx*120}ms`
               }}>
-                <span className="text-3xl md:text-4xl font-extrabold">{s.n}</span>
-                <span className="text-lg md:text-xl font-semibold">{s.t}</span>
+                 <span className="text-2xl md:text-3xl font-extrabold">{s.n}</span>
+                 <span className="text-xs md:text-sm font-medium">{s.t}</span>
               </div>
             ))}
           </div>

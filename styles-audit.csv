@@ -1,0 +1,31 @@
+file,selector_or_text,width,height,font-size,position,color,notes
+public/overlay.svg,Teenique text,, ,90px,x=200 y=220,#0e0e0e,SVG banner updated from 140->90
+public/overlay.svg,Elegance Redefined,, ,56px,x=200 y=320,#0e0e0e,SVG subtitle
+src/pages/Index.tsx,h1 (.text-4xl / md:text-6xl),, ,36px / 60px,center (flex items-center justify-center),#111111,Animated letter-by-letter hero title
+src/pages/Index.tsx,h2 (.text-2xl / md:text-4xl),, ,24px / 36px,center,#FF6B5C (main); #666666 (subline),"Subheading 'Elegance Redesigned' + 'For Gen-Z'"
+src/pages/Index.tsx,Hero CTA Button (text-xl, px-8 py-4),, ,20px,,bg:#d35400;text:#ffffff,padding L/R=32px, T/B=16px
+src/pages/Index.tsx,Stats number (.text-3xl / md:text-4xl),, ,30px / 36px,,#18181B/80,Numbers: 50K+,200+,4.9
+src/components/Header.tsx,Logo image (.h-12),,48px,, , ,logo height=48px
+src/components/Header.tsx,ShoppingCart icon (.w-7 .h-7),28px,28px,, ,stroke:#000; strokeWidth=2.5,Icon size 28px
+src/components/Header.tsx,Cart badge (.h-6 .w-6),24px,24px,, ,gradient(from-pink-500 to-purple-500); text white,Badge top-right - absolute
+src/components/FashionSidebar.tsx,Logo container (.w-12 .h-12),48px,48px,, , ,Round logo background box
+src/components/FashionSidebar.tsx,Logo image (.w-14 .h-14),56px,56px,, , ,Scaled image inside container
+src/components/FashionSidebar.tsx,TEENIQUE text (.text-base tracking-[0.3em]),, ,16px,inline in sidebar,#0F0F0F,Tracking 0.3em; font-family Bodoni Moda
+src/components/FashionSidebar.tsx,Subtext (.text-[10px]),, ,10px,inline,#0F0F0F,Uppercase tag
+src/components/ui/sidebar.tsx,--SIDEBAR_WIDTH,256px,, , , ,const SIDEBAR_WIDTH = "16rem"
+src/components/ui/sidebar.tsx,--SIDEBAR_WIDTH_MOBILE,288px,, , , ,const SIDEBAR_WIDTH_MOBILE = "18rem"
+src/components/ui/sidebar.tsx,--SIDEBAR_WIDTH_ICON,48px,, , , ,const SIDEBAR_WIDTH_ICON = "3rem"
+src/index.css,.fade-in-slide-down animation,, , , , ,animation-duration:1.8s ease-out (used for Teenique text)
+src/components/VariableProximity.css,selector1 font-size: clamp(1.5rem, 5vw, 4rem),, ,24px(min) - responsive - 64px(max),, ,
+src/components/VariableProximity.css,selector2 font-size: clamp(4rem, 12vw, 10rem),, ,64px(min) - responsive - 160px(max),, ,
+src/components/VariableProximity.css,selector3 font-size: clamp(1.5rem, 4vw, 3rem),, ,24px(min) - responsive - 48px(max),, ,
+src/components/ShippingAddressModule.tsx,SVG icons (location) ,22px,22px,, ,stroke:#0F0F0F,Inline SVG width/height
+src/components/ShippingAddressModule.tsx,Save Address button (px-6 py-2),, , , ,bg:#0F0F0F;text:#ffffff,padding L/R=24px; T/B=8px
+src/components/ui/input.tsx,Input (.h-10),,40px,, , ,Tailwind `h-10` = 2.5rem = 40px
+src/components/ui/select.tsx,Popover width (.w-72),, , , , ,`w-72` = 18rem = 288px; min-w-[8rem]=128px
+src/components/ui/toast.tsx,Toast item (.h-8 .px-3 .text-sm),,32px height,, , ,h-8 = 2rem = 32px; text-sm ~14px
+src/components/ui/radio-group.tsx,Radio (.h-4 .w-4 .aspect-square),16px,16px,, , ,h-4 = 1rem = 16px
+src/components/ui/table.tsx,Table (.w-full .text-sm),, , , , ,text-sm ~14px; full width
+src/components/CircularProductSlider.css,canvas size (responsive),,clamp(420px,55vw,600px),, , ,uses `height: clamp(420px, 55vw, 600px)`
+src/components/ui/tooltip.tsx,Tooltip (.px-3 .py-1.5 .text-sm),, , , , ,padding 12px x,6px y approx; text-sm
+src/components/ui/navigation-menu.tsx,Viewport (.h-[var(--radix-navigation-menu-viewport-height)] .md:w-[var(--radix-navigation-menu-viewport-width)]),, , , , ,varies via radix css vars
