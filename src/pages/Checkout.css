@@ -42,12 +42,14 @@ body {
 
 .checkout {
   max-width: 1200px;
-  margin: 40px auto;
+  /* move forms further left toward the left corner */
+  margin: 40px 40px 40px calc(var(--sidebar-width, 88px) - 28px);
 }
 
 .checkout-grid {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  /* right column set to 360px for Order Summary */
+  grid-template-columns: 1fr 360px;
   gap: 40px;
   align-items: start;
 }
@@ -63,7 +65,8 @@ body {
   flex-direction: column;
   gap: 20px;
   position: sticky;
-  top: 20px;
+  /* bring the side tab a bit closer to the nav bar */
+  top: 8px;
 }
 
 .card {

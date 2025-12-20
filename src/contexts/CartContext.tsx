@@ -7,6 +7,7 @@ export interface Product {
   price: number;
   image: string;
   category: string;
+  code?: string;
 }
 
 export interface CollectionItem extends Product {
@@ -93,6 +94,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             price: product.price,
             category: product.category,
             image: it.image || product.image,
+            code: product.code,
             quantity: typeof it.quantity === 'number' && it.quantity > 0 ? it.quantity : 1,
             color: it.color || 'Default',
             size: remapSize(it.size) || 'M',
@@ -211,7 +213,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             : item
         );
       }
-      return [...prevCart, { ...product, quantity: 1, color: color || 'Default', size: size || 'M', image: variantImage || product.image }];
+      return [...prevCart, { ...product, quantity: 1, color: color || 'Default', size: size || 'M', image: variantImage || product.image, code: product.code }];
     });
   }, [pushToCollections, setCart]);
 
