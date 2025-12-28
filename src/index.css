@@ -5,6 +5,15 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Font utility classes */
 .font-bodoni {
   font-family: 'Bodoni Moda', serif;
@@ -17,7 +26,8 @@ body {
 .circular-slider {
   position: relative;
   width: 100%;
-  height: clamp(420px, 55vw, 600px);
+  /* Slightly reduced vertical length for a tighter gallery */
+  height: clamp(360px, 50vw, 520px);
   margin: 0 auto;
   perspective: 1600px;
   overflow: hidden;
@@ -35,25 +45,26 @@ body {
 }
 
 .circular-slider-card {
-  width: clamp(180px, 20vw, 240px);
-  height: clamp(260px, 32vw, 340px);
-  border-radius: 28px;
+  /* Reduced card footprint for mobile and tighter layouts */
+  width: clamp(150px, 16vw, 200px);
+  height: clamp(220px, 26vw, 280px);
+  border-radius: 20px;
   pointer-events: auto;
 }
 
 .circular-slider-card__inner {
   width: 100%;
   height: 100%;
-  border-radius: 28px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 20px 45px rgba(13, 13, 34, 0.15);
-  padding: 1.25rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(13, 13, 34, 0.12);
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
-  border: 1px solid rgba(217, 198, 164, 0.2);
+  gap: 0.65rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(217, 198, 164, 0.16);
 }
 
 .circular-slider-card__inner:hover {
@@ -64,9 +75,9 @@ body {
 
 .circular-slider-card__image {
   width: 100%;
-  height: 70%;
+  height: 66%;
   object-fit: cover;
-  border-radius: 20px;
+  border-radius: 16px;
 }
 
 @tailwind base;

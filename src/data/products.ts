@@ -22,7 +22,7 @@ export const products: Product[] = [
   {
     id: 7,
     name: "Back Grey Limited Edition",
-    price: 2999,
+    price: 899,
     image: backGrey,
     category: "Outerwear",
     code: "00001H",
@@ -30,7 +30,7 @@ export const products: Product[] = [
   {
     id: 8,
     name: "Black Joggers",
-    price: 1599,
+    price: 599,
     image: blackJoggers,
     category: "Bottoms",
     code: "00001j",
@@ -38,7 +38,7 @@ export const products: Product[] = [
   {
     id: 9,
     name: "Off White Sweatpants",
-    price: 1799,
+    price: 699,
     image: offWhiteSweatpants,
     category: "Bottoms",
     code: "00001sp",
@@ -46,7 +46,7 @@ export const products: Product[] = [
   {
     id: 10,
     name: "Graphic Tee Screenshot",
-    price: 1299,
+    price: 599,
     image: screenshotT,
     category: "Tops",
     code: "00001T",
@@ -54,7 +54,7 @@ export const products: Product[] = [
   {
     id: 11,
     name: "Hoodie Screenshot",
-    price: 2499,
+    price: 699,
     image: screenshotH,
     category: "Outerwear",
     code: "00002H",
@@ -62,7 +62,7 @@ export const products: Product[] = [
   {
     id: 12,
     name: "Tee Screenshot 3T",
-    price: 1299,
+    price: 599,
     image: screenshot3T_1,
     category: "Tops",
     code: "00003T",
@@ -70,7 +70,7 @@ export const products: Product[] = [
   {
     id: 13,
     name: "Green Back Top",
-    price: 1399,
+    price: 699,
     image: redBack,
     category: "Tops",
     code: "00004T",
@@ -78,15 +78,23 @@ export const products: Product[] = [
   {
     id: 14,
     name: "Black Front Top",
-    price: 1399,
+    price: 499,
     image: blackFront,
     category: "Tops",
     code: "00005T",
   },
   {
+    id: 15,
+    name: "Black Front Tee",
+    price: 499,
+    image: r2tBlackFront,
+    category: "Tops",
+    code: "00002T",
+  },
+  {
     id: 16,
     name: "Hoodie 00003 H",
-    price: 2499,
+    price: 599,
     image: hoodie03HBlackFront,
     category: "Outerwear",
     code: "00003H",

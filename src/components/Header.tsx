@@ -12,9 +12,10 @@ interface HeaderProps {
   showCartBackground?: boolean;
   cartIconBlue?: boolean;
   centerLogo?: boolean;
+  isHomePage?: boolean;
 }
 
-const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = false, logoBackgroundIntense = false, showCartBackground = false, cartIconBlue = false, centerLogo = false }: HeaderProps) => {
+const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = false, logoBackgroundIntense = false, showCartBackground = false, cartIconBlue = false, centerLogo = false, isHomePage = false }: HeaderProps) => {
   const { cartCount, cart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,16 +73,16 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
-    <header className={`sticky top-0 z-50 w-full transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"}`}>
+    <header className={`${isHomePage ? 'absolute top-0 z-50 w-full' : 'sticky top-0 z-50 w-full transition-transform duration-300'} ${isHomePage ? '' : (isVisible ? "translate-y-0" : "-translate-y-full")}`}>
       <div className={`container flex h-16 items-center px-4 md:px-6 ${centerLogo ? "justify-center" : "justify-between"}`}>
         {/* Left spacer for centered layout */}
         {centerLogo && <div className="flex-1" />}
         
         <Link to="/" className={`flex items-center ${centerLogo ? "absolute left-1/2 -translate-x-1/2" : ""}`}>
-          <img 
-            src={logo} 
-            alt="Teenique" 
-            className={`h-12 w-auto ${showLogoBackground ? (logoBackgroundIntense ? 'bg-[#FFF8E7]/80 rounded-lg p-1 shadow-[0_0_15px_rgba(255,248,231,0.6)]' : 'bg-[#FFF8E7]/20 rounded-lg p-1 shadow-[0_0_10px_rgba(255,248,231,0.3)]') : ''}`} 
+          <img
+            src={logo}
+            alt="Teenique"
+            className={`h-12 w-auto rounded-lg p-1 shadow-sm`}
           />
         </Link>
         
@@ -118,7 +119,7 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
             onClick={() => setShowCart(!showCart)}
             className="relative flex items-center gap-2 px-3 py-2 rounded-full hover:bg-[#1E88E5] transition-all duration-300"
           >
-            <ShoppingCart className={`w-7 h-7 stroke-[2.5] cart-icon-pulse ${cartIconBlue ? 'text-sky-400' : 'text-black'}`} />
+            <ShoppingCart className={`w-7 h-7 stroke-[2.5] cart-icon-pulse transition-all duration-300 hover:stroke-[3] hover:text-black hover:font-bold ${cartIconBlue ? 'text-sky-400' : 'text-black'}`} />
             {cartCount > 0 && (
               <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-xs font-bold text-white shadow-lg">
                 {cartCount}

@@ -46,13 +46,6 @@ const StyleGallery = () => {
                 addToLikes={addToLikesLocal}
                 removeFromLikes={removeFromLikesLocal}
                 addToCart={addToCart}
-                onCardClick={() => {
-                  if (isLikedLocal(product.id)) {
-                    removeFromLikesLocal(product.id);
-                  } else {
-                    addToLikesLocal(product);
-                  }
-                }}
               />
             ))}
           </div>

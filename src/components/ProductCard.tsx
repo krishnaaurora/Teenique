@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 // Product Images (update paths as needed)
 import blackBack from "@/../products/PRODUCT CODE 00005T/black back.png";
@@ -169,6 +171,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{size?: string; color?: string; quantity?: string}>({});
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
   const lastClickRef = useRef(0);
   const clickTimeoutRef = useRef<number | null>(null);
 
@@ -598,7 +603,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
     // Schedule single-click action; if a second tap/click occurs within 300ms, it will be cancelled
     clickTimeoutRef.current = window.setTimeout(() => {
       clickTimeoutRef.current = null;
-      if (onCardClick) onCardClick();
+      if (onCardClick) {
+        onCardClick();
+      } else if (hasModalSwatches) {
+        setIsModalOpen(true);
+      }
     }, 300) as unknown as number;
   };
 
@@ -683,6 +692,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const removeFromCartHandler = ctxRemoveFromCart ?? removeFromCart;
   const updateQuantityHandler = ctxUpdateQuantity ?? (() => {});
   const addToLikesHandler = ctxAddToLikes ?? addToLikes;
+
+  const { toast: showToast } = useToast();
+  const navigate = useNavigate();
   const removeFromLikesHandler = ctxRemoveFromLikes ?? removeFromLikes;
   const isLikedHandler = ctxIsLiked ?? isLiked;
 
@@ -694,30 +706,117 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const quantityInCart = cartItem ? cartItem.quantity : 0;
 
   const handleAddToCart = () => {
+    // Clear previous errors
+    setValidationErrors({});
+
+    // Validate selections
+    const errors: {size?: string; color?: string; quantity?: string} = {};
+
     if (showSizes && !selectedSize) {
-      toast.error("Please select a size");
+      errors.size = "Please select a size";
+    }
+
+    if (hasModalSwatches && !selectedColor) {
+      errors.color = "Please select a color";
+    }
+
+    const currentQuantity = cartItem ? cartItem.quantity : 0;
+    if (currentQuantity < 1) {
+      errors.quantity = "Please select quantity";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
       return;
     }
+
+    // Add to cart
+    setIsAddingToCart(true);
     addToCartHandler(product as any, selectedColor || undefined, selectedSize || undefined, currentImage);
-    toast.success(`${product.name} ${selectedSize ? `(${selectedSize})` : ""} added to cart!`);
+
+    // Show success feedback
+    toast({
+      title: "Added to cart!",
+      description: `${product.name} has been added to your cart.`,
+    });
+
+    // Reset button after 2 seconds
+    setTimeout(() => {
+      setIsAddingToCart(false);
+    }, 2000);
+  };
+
+  const handleBuyNow = () => {
+    // Clear previous errors
+    setValidationErrors({});
+
+    // Validate selections
+    const errors: {size?: string; color?: string; quantity?: string} = {};
+
+    if (showSizes && !selectedSize) {
+      errors.size = "Please select a size";
+    }
+
+    if (hasModalSwatches && !selectedColor) {
+      errors.color = "Please select a color";
+    }
+
+    const currentQuantity = cartItem ? cartItem.quantity : 0;
+    if (currentQuantity < 1) {
+      errors.quantity = "Please select quantity";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    // Create temporary cart with just this item
+    setIsBuyingNow(true);
+
+    // Clear existing cart and add only this item
+    // Note: In a real app, you'd want to preserve the cart or handle this differently
+    // For now, we'll just add to cart and navigate to checkout
+
+    // Navigate to checkout
+    navigate('/checkout');
+
+    setTimeout(() => {
+      setIsBuyingNow(false);
+    }, 1000);
   };
 
   const handleRemoveFromCart = () => {
     if (quantityInCart > 0) {
       removeFromCartHandler(Number(product.id), selectedColor || undefined, selectedSize || undefined);
-      toast.success(`${product.name} removed from cart!`);
+      showToast({
+        title: "Removed from cart",
+        description: `${product.name} has been removed from your cart.`,
+        variant: "destructive"
+      });
     } else {
-      toast.error(`${product.name} is not in your cart`);
+      showToast({
+        title: "Not in cart",
+        description: `${product.name} is not in your cart.`,
+        variant: "destructive"
+      });
     }
   };
 
-  const handleLike = () => {
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click from triggering
     if (liked) {
       removeFromLikesHandler(Number(product.id), selectedColor || undefined, selectedSize || undefined);
-      toast.success(`${product.name} removed from favorites!`);
+      showToast({
+        title: "Removed from favorites",
+        description: `${product.name} has been removed from your favorites.`,
+      });
     } else {
       addToLikesHandler(product as any, selectedColor || undefined, selectedSize || undefined, currentImage);
-      toast.success(`${product.name} added to favorites!`);
+      showToast({
+        title: "Added to favorites",
+        description: `${product.name} has been added to your favorites.`,
+      });
     }
   };
 
@@ -796,28 +895,36 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Image Modal */}
       {isModalOpen && hasModalSwatches && config && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
           onClick={handleModalClose}
         >
-          <div className="relative max-w-md w-full mx-4">
+          <div
+            className="relative w-full max-w-6xl mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={handleModalClose}
+              className="absolute top-4 right-4 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-            <div className="bg-white rounded-2xl overflow-hidden shadow-2xl">
-
-
-              {/* Main Image */}
-              <div className="px-4 pb-4">
+            <div className="md:flex">
+              {/* Left: Image Section */}
+              <div className="md:w-1/2 p-6">
                 <div className="relative">
                   <img
                     src={config.images[selectedColor]?.[selectedAngle] || placeholderImage}
                     alt={`${product.name} - ${selectedColor} ${selectedAngle}`}
-                    className="w-full max-h-[60vh] object-contain cursor-pointer"
-                      onClick={cycleAngle}
+                    className="w-full h-auto max-h-[60vh] object-contain rounded-lg"
+                    onClick={cycleAngle}
                     onTouchStart={onTouchStart}
                     onTouchMove={onTouchMove}
                     onTouchEnd={onTouchEnd}
                   />
 
-                  {/* Centered left/right arrows inside modal only */}
+                  {/* Navigation Arrows */}
                   {config.colorOptions.length > 1 && (
                     <>
                       <button
@@ -829,8 +936,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                           setSelectedColor(colors[prevIndex]);
                           setSelectedAngle(config.defaultAngle);
                         }}
-                        aria-label="Previous color"
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-transparent hover:bg-white/10 p-2 rounded-full z-20"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-md"
                       >
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                           <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
@@ -846,8 +952,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                           setSelectedColor(colors[nextIndex]);
                           setSelectedAngle(config.defaultAngle);
                         }}
-                        aria-label="Next color"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent hover:bg-white/10 p-2 rounded-full z-20"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-md"
                       >
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                           <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6" />
@@ -856,96 +961,145 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     </>
                   )}
                 </div>
+
+                {/* Thumbnail Carousel Removed */}
               </div>
 
-              {/* Color Swatches */}
-              <div className="flex justify-center space-x-2 mb-4">
-                {config.colorOptions.map((color) => (
-                  <button
-                    key={color.key}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedColor(color.key);
-                    }}
-                    className={`w-8 h-8 rounded-full border-2 hover:bg-gray-200 transition-colors ${
-                      selectedColor === color.key ? 'border-black' : 'border-gray-300'
-                    }`}
-                    style={{ backgroundColor: color.hex }}
-                  />
-                ))}
-              </div>
+              {/* Right: Product Info Panel */}
+              <div className="md:w-1/2 p-6 flex flex-col">
+                <div className="flex-1">
+                  {/* Product Title */}
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                    {product.name}
+                  </h2>
 
-              {/* size selector moved below product code inside modal */}
+                  {/* Price */}
+                  <p className="text-2xl font-semibold text-gray-900 mb-4">₹{product.price}</p>
 
-              {/* Product Info + compact controls (in modal) */}
-              <div className="p-4 border-t flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground uppercase tracking-wider">
-                    {product.category}
-                  </p>
-                  <h3 className="text-lg font-bold mt-1">{product.code}</h3>
+                  {/* Rating and Stock */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="flex items-center">
+                      <span className="text-yellow-400">★★★★★</span>
+                      <span className="ml-2 text-sm text-gray-600">(4.9)</span>
+                    </div>
+                    <span className="text-sm text-green-600 font-medium">In Stock</span>
+                  </div>
+
+                  {/* Size Selection */}
+                  {showSizes && (
+                    <div className="mb-6">
+                      <h3 className="text-sm font-medium text-gray-900 mb-3">Size</h3>
+                      <div className="flex gap-2">
+                        {SIZE_OPTIONS.map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => setSelectedSize(size)}
+                            className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+                              selectedSize === size
+                                ? "border-black bg-black text-white"
+                                : "border-gray-300 hover:border-gray-400 text-gray-700"
+                            }`}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                      {validationErrors.size && (
+                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-red-600 text-sm font-medium">⚠️ Please select a size to continue</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Color Selection */}
+                  <div className="mb-6">
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Color</h3>
+                    <div className="flex gap-3">
+                      {config.colorOptions.map((color) => (
+                        <button
+                          key={color.key}
+                          onClick={() => {
+                            setSelectedColor(color.key);
+                            setSelectedAngle(config.defaultAngle);
+                          }}
+                          className={`w-8 h-8 rounded-full border-2 ${
+                            selectedColor === color.key ? 'border-black' : 'border-gray-300'
+                          }`}
+                          style={{ backgroundColor: color.hex }}
+                        />
+                      ))}
+                    </div>
+                    {validationErrors.color && (
+                      <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-600 text-sm font-medium">⚠️ Please select a color to continue</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quantity Selector */}
+                  <div className="mb-8">
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Quantity</h3>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center border border-gray-300 rounded-lg">
+                        <button
+                          onClick={() => {
+                            const currentQty = cartItem ? cartItem.quantity : 0;
+                            if (currentQty > 0) {
+                              try {
+                                updateQuantityHandler(Number(product.id), currentQty - 1, selectedColor || undefined, selectedSize || undefined);
+                              } catch (err) {}
+                            }
+                          }}
+                          className="px-3 py-2 hover:bg-gray-50"
+                        >
+                          −
+                        </button>
+                        <span className="px-4 py-2 border-x border-gray-300">{cartItem ? cartItem.quantity : 0}</span>
+                        <button
+                          onClick={() => {
+                            const currentQty = cartItem ? cartItem.quantity : 0;
+                            if (currentQty > 0) {
+                              try {
+                                updateQuantityHandler(Number(product.id), currentQty + 1, selectedColor || undefined, selectedSize || undefined);
+                              } catch (err) {}
+                            } else {
+                              addToCartHandler(product as any, selectedColor || undefined, selectedSize || undefined, currentImage);
+                            }
+                          }}
+                          className="px-3 py-2 hover:bg-gray-50"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    {validationErrors.quantity && (
+                      <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-600 text-sm font-medium">⚠️ Please select quantity to continue</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const currentQty = cartItem ? cartItem.quantity : 0;
-                                      if (currentQty > 0) {
-                                        try {
-                                          updateQuantityHandler(Number(product.id), currentQty - 1, selectedColor || undefined, selectedSize || undefined);
-                                        } catch (err) {}
-                                      }
-                    }}
-                    aria-label="Decrease quantity"
-                    className="w-8 h-8 bg-[#E8E4DE] rounded-full flex items-center justify-center"
+                {/* CTA Buttons */}
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={isAddingToCart}
+                    className="w-full bg-black hover:bg-gray-800 text-white py-3 text-lg font-medium disabled:opacity-50"
                   >
-                    -
-                  </button>
-
-                  <span className="text-sm">{cartItem ? cartItem.quantity : 0}</span>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const currentQty = cartItem ? cartItem.quantity : 0;
-                      if (currentQty > 0) {
-                        try {
-                          updateQuantityHandler(Number(product.id), currentQty + 1, selectedColor || undefined, selectedSize || undefined);
-                        } catch (err) {}
-                      } else {
-                        addToCartHandler(product as any, selectedColor || undefined, selectedSize || undefined, currentImage);
-                      }
-                    }}
-                    aria-label="Increase quantity"
-                    className="w-8 h-8 bg-[#E8E4DE] rounded-full flex items-center justify-center"
+                    {isAddingToCart ? "Added ✓" : "Add to Cart"}
+                  </Button>
+                  <Button
+                    onClick={handleBuyNow}
+                    disabled={isBuyingNow}
+                    variant="outline"
+                    className="w-full border-2 border-black text-black hover:bg-black hover:text-white py-3 text-lg font-medium disabled:opacity-50"
                   >
-                    +
-                  </button>
+                    {isBuyingNow ? "Processing..." : "Buy Now"}
+                  </Button>
                 </div>
               </div>
-
-              {/* Size selector placed directly below product code in modal */}
-              {showSizes && (
-                <div className="flex flex-wrap gap-2 px-4 mt-2 mb-4">
-                  {SIZE_OPTIONS.map((size) => (
-                    <button
-                      key={size}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedSize(size);
-                      }}
-                      className={`rounded-full border px-3 py-1 text-xs font-medium transition-all ${
-                        selectedSize === size
-                          ? "border-[#D9C6A4] bg-[#D9C6A4] text-black"
-                          : "border-border hover:border-[#D9C6A4] text-muted-foreground"
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         </div>
