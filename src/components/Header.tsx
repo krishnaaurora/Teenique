@@ -35,7 +35,7 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
     if (path === "/collections") {
       return "text-orange-500 hover:text-orange-300"; // Collections page - Orange
     } else if (path === "/checkout") {
-      return "text-green-500 hover:text-green-400"; // Checkout page - Green
+      return "text-blue-500 hover:text-blue-400"; // Checkout page - Blue
     } else if (path === "/gallery") {
       return "text-blue-500 hover:text-blue-400"; // Style Gallery - Blue
     } else if (path === "/") {
@@ -170,21 +170,13 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
                     ))}
                   </div>
 
-                  <div className="border-t border-gray-200 pt-4 space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-foreground">Subtotal:</span>
-                      <span className="text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                        ${cartTotal.toFixed(2)}
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleCheckout}
-                      className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      Proceed to Checkout
-                    </button>
-                  </div>
+                  <button
+                    onClick={handleCheckout}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    Proceed to Checkout
+                  </button>
                 </>
               )}
             </div>

@@ -14,7 +14,6 @@ import screenshotT from "@/../products/PRODUCT CODE 00001T/Screenshot 2025-12-07
 import screenshotH from "@/../products/PRODUCT CODE 00002H/Screenshot 2025-12-08 181544.png";
 import screenshot3T_1 from "@/../products/PRODUCT CODE 00003T/Screenshot 2025-12-07 211113.png";
 import redBack from "@/../products/PRODUCT CODE 00004T/red back.png";
-import blackFront from "@/../products/PRODUCT CODE 00005T/black front.png";
 import r2tBlackFront from "@/../products/RPODUCT CODE 00002T/black front.png";
 import hoodie03HBlackFront from "@/../products/PRODUCT CODE 00003 H/black front.png";
 
@@ -74,14 +73,6 @@ export const products: Product[] = [
     image: redBack,
     category: "Tops",
     code: "00004T",
-  },
-  {
-    id: 14,
-    name: "Black Front Top",
-    price: 499,
-    image: blackFront,
-    category: "Tops",
-    code: "00005T",
   },
   {
     id: 15,

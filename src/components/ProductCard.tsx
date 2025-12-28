@@ -7,14 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 // Product Images (update paths as needed)
-import blackBack from "@/../products/PRODUCT CODE 00005T/black back.png";
-import blackFront from "@/../products/PRODUCT CODE 00005T/black front.png";
-import blackLeftSleeve from "@/../products/PRODUCT CODE 00005T/black left sleeve.png";
-import blackRightSleeve from "@/../products/PRODUCT CODE 00005T/black right sleeve.png";
-import navyBlueBack from "@/../products/PRODUCT CODE 00005T/navy blue back.png";
-import navyBlueFront from "@/../products/PRODUCT CODE 00005T/navy blue front.png";
-import navyBlueLeftSleeve from "@/../products/PRODUCT CODE 00005T/navy blue left sleeve.png";
-import navyBlueRightSleeve from "@/../products/PRODUCT CODE 00005T/navy blue right sleeve.png";
 import r2tBlackBack from "@/../products/RPODUCT CODE 00002T/black back.png";
 import r2tBlackFront from "@/../products/RPODUCT CODE 00002T/black front.png";
 import r2tWhiteBack from "@/../products/RPODUCT CODE 00002T/white back.png";
@@ -508,43 +500,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
       defaultColor: "black",
       defaultAngle: "front",
     },
-    "Classic Black Tee": {
-      colorOptions: [{ name: "Black", key: "black", hex: "#000000" }],
-      angleOptions: [{ name: "Front", key: "front" }],
-      images: {
-        black: { front: blackFront },
-      },
-      defaultColor: "black",
-      defaultAngle: "front",
-    },
-    "Black Front Top": {
-      colorOptions: [
-        { name: "Black", key: "black", hex: "#000000" },
-        { name: "Navy Blue", key: "navyblue", hex: "#000080" },
-      ],
-      angleOptions: [
-        { name: "Front", key: "front" },
-        { name: "Back", key: "back" },
-        { name: "Left Sleeve", key: "leftsleeve" },
-        { name: "Right Sleeve", key: "rightsleeve" },
-      ],
-      images: {
-        black: {
-          front: blackFront,
-          back: blackBack,
-          leftsleeve: blackLeftSleeve,
-          rightsleeve: blackRightSleeve,
-        },
-        navyblue: {
-          front: navyBlueFront,
-          back: navyBlueBack,
-          leftsleeve: navyBlueLeftSleeve,
-          rightsleeve: navyBlueRightSleeve,
-        },
-      },
-      defaultColor: "black",
-      defaultAngle: "front",
-    },
     "Hoodie 00003 H": {
       colorOptions: [
         { name: "Black", key: "black", hex: "#000000" },
@@ -771,12 +726,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
       return;
     }
 
-    // Create temporary cart with just this item
+    // Add item to cart and navigate to checkout
     setIsBuyingNow(true);
 
-    // Clear existing cart and add only this item
-    // Note: In a real app, you'd want to preserve the cart or handle this differently
-    // For now, we'll just add to cart and navigate to checkout
+    addToCartHandler(product, selectedColor || undefined, selectedSize || undefined, selectedImage);
+
+    showToast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
 
     // Navigate to checkout
     navigate('/checkout');
@@ -869,21 +827,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </div>
 
-          <div className="p-4 space-y-3">
+          <div className="p-2 space-y-1">
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
                 {product.category}
               </p>
               {showName && (
-                <div className="mt-1 flex items-start justify-between">
+                <div className="mt-0.5 flex items-start justify-between">
                   <div>
-                    <h3 className="font-semibold text-foreground">{product.code || product.name}</h3>
+                    <h3 className="font-semibold text-xs text-foreground">{product.code || product.name}</h3>
                     {product.color && (
-                      <p className="text-xs text-[#6B6B6B] mt-1">{`Color: ${product.color}`}</p>
+                      <p className="text-xs text-[#6B6B6B] mt-0.5">{`Color: ${product.color}`}</p>
                     )}
                   </div>
                   {showPrice && (
-                    <div className="text-lg font-bold ml-4">₹{product.price}</div>
+                    <div className="text-sm font-bold ml-3">₹{product.price}</div>
                   )}
                 </div>
               )}
@@ -904,97 +862,77 @@ const ProductCard: React.FC<ProductCardProps> = ({
           >
             {/* Close Button */}
             <button
-              onClick={handleModalClose}
-              className="absolute top-4 right-4 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md"
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all duration-200"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="md:flex">
               {/* Left: Image Section */}
-              <div className="md:w-1/2 p-6">
+              <div className="md:w-1/2 p-4">
                 <div className="relative">
                   <img
                     src={config.images[selectedColor]?.[selectedAngle] || placeholderImage}
                     alt={`${product.name} - ${selectedColor} ${selectedAngle}`}
-                    className="w-full h-auto max-h-[60vh] object-contain rounded-lg"
+                    className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
                     onClick={cycleAngle}
                     onTouchStart={onTouchStart}
                     onTouchMove={onTouchMove}
                     onTouchEnd={onTouchEnd}
                   />
 
-                  {/* Navigation Arrows */}
-                  {config.colorOptions.length > 1 && (
-                    <>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const colors = config.colorOptions.map(c => c.key);
-                          const currentIndex = colors.indexOf(selectedColor);
-                          const prevIndex = (currentIndex - 1 + colors.length) % colors.length;
-                          setSelectedColor(colors[prevIndex]);
-                          setSelectedAngle(config.defaultAngle);
-                        }}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-md"
-                      >
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
-                        </svg>
-                      </button>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const colors = config.colorOptions.map(c => c.key);
-                          const currentIndex = colors.indexOf(selectedColor);
-                          const nextIndex = (currentIndex + 1) % colors.length;
-                          setSelectedColor(colors[nextIndex]);
-                          setSelectedAngle(config.defaultAngle);
-                        }}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-md"
-                      >
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6" />
-                        </svg>
-                      </button>
-                    </>
-                  )}
+                  {/* Navigation Arrows Removed */}
                 </div>
 
-                {/* Thumbnail Carousel Removed */}
+                {/* Angle/View Selection Buttons Below Image */}
+                {config.angleOptions.length > 1 && (
+                  <div className="mt-4">
+                    <div className="flex justify-center gap-2 flex-wrap">
+                      {config.angleOptions.map((angle) => (
+                        <button
+                          key={angle.key}
+                          onClick={() => setSelectedAngle(angle.key)}
+                          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                            selectedAngle === angle.key
+                              ? "border-black bg-black text-white"
+                              : "border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          {angle.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right: Product Info Panel */}
-              <div className="md:w-1/2 p-6 flex flex-col">
+              <div className="md:w-1/2 p-4 flex flex-col">
                 <div className="flex-1">
                   {/* Product Title */}
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     {product.name}
                   </h2>
 
                   {/* Price */}
-                  <p className="text-2xl font-semibold text-gray-900 mb-4">₹{product.price}</p>
+                  <p className="text-xl font-semibold text-gray-900 mb-3">₹{product.price}</p>
 
-                  {/* Rating and Stock */}
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="flex items-center">
-                      <span className="text-yellow-400">★★★★★</span>
-                      <span className="ml-2 text-sm text-gray-600">(4.9)</span>
-                    </div>
-                    <span className="text-sm text-green-600 font-medium">In Stock</span>
+                  {/* Stock Status */}
+                  <div className="mb-4">
+                    <span className="text-xs text-green-600 font-medium">In Stock</span>
                   </div>
 
                   {/* Size Selection */}
                   {showSizes && (
-                    <div className="mb-6">
-                      <h3 className="text-sm font-medium text-gray-900 mb-3">Size</h3>
+                    <div className="mb-4">
+                      <h3 className="text-xs font-medium text-gray-900 mb-2">Size</h3>
                       <div className="flex gap-2">
                         {SIZE_OPTIONS.map((size) => (
                           <button
                             key={size}
                             onClick={() => setSelectedSize(size)}
-                            className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+                            className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
                               selectedSize === size
                                 ? "border-black bg-black text-white"
                                 : "border-gray-300 hover:border-gray-400 text-gray-700"
@@ -1005,17 +943,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         ))}
                       </div>
                       {validationErrors.size && (
-                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                          <p className="text-red-600 text-sm font-medium">⚠️ Please select a size to continue</p>
+                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-red-600 text-xs font-medium">⚠️ Please select a size to continue</p>
                         </div>
                       )}
                     </div>
                   )}
 
                   {/* Color Selection */}
-                  <div className="mb-6">
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Color</h3>
-                    <div className="flex gap-3">
+                  <div className="mb-4">
+                    <h3 className="text-xs font-medium text-gray-900 mb-2">Color</h3>
+                    <div className="flex gap-2">
                       {config.colorOptions.map((color) => (
                         <button
                           key={color.key}
@@ -1023,7 +961,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             setSelectedColor(color.key);
                             setSelectedAngle(config.defaultAngle);
                           }}
-                          className={`w-8 h-8 rounded-full border-2 ${
+                          className={`w-6 h-6 rounded-full border-2 ${
                             selectedColor === color.key ? 'border-black' : 'border-gray-300'
                           }`}
                           style={{ backgroundColor: color.hex }}
@@ -1031,16 +969,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
                       ))}
                     </div>
                     {validationErrors.color && (
-                      <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-600 text-sm font-medium">⚠️ Please select a color to continue</p>
+                      <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-600 text-xs font-medium">⚠️ Please select a color to continue</p>
                       </div>
                     )}
                   </div>
 
                   {/* Quantity Selector */}
-                  <div className="mb-8">
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Quantity</h3>
-                    <div className="flex items-center gap-4">
+                  <div className="mb-6">
+                    <h3 className="text-xs font-medium text-gray-900 mb-2">Quantity</h3>
+                    <div className="flex items-center gap-3">
                       <div className="flex items-center border border-gray-300 rounded-lg">
                         <button
                           onClick={() => {
@@ -1051,11 +989,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                               } catch (err) {}
                             }
                           }}
-                          className="px-3 py-2 hover:bg-gray-50"
+                          className="px-2 py-1 hover:bg-gray-50 text-sm"
                         >
                           −
                         </button>
-                        <span className="px-4 py-2 border-x border-gray-300">{cartItem ? cartItem.quantity : 0}</span>
+                        <span className="px-3 py-1 border-x border-gray-300 text-sm">{cartItem ? cartItem.quantity : 0}</span>
                         <button
                           onClick={() => {
                             const currentQty = cartItem ? cartItem.quantity : 0;
@@ -1067,26 +1005,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
                               addToCartHandler(product as any, selectedColor || undefined, selectedSize || undefined, currentImage);
                             }
                           }}
-                          className="px-3 py-2 hover:bg-gray-50"
+                          className="px-2 py-1 hover:bg-gray-50 text-sm"
                         >
                           +
                         </button>
                       </div>
                     </div>
                     {validationErrors.quantity && (
-                      <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-600 text-sm font-medium">⚠️ Please select quantity to continue</p>
+                      <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-600 text-xs font-medium">⚠️ Please select quantity to continue</p>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <Button
                     onClick={handleAddToCart}
                     disabled={isAddingToCart}
-                    className="w-full bg-black hover:bg-gray-800 text-white py-3 text-lg font-medium disabled:opacity-50"
+                    className="w-full bg-black hover:bg-gray-800 text-white py-2.5 text-base font-medium disabled:opacity-50"
                   >
                     {isAddingToCart ? "Added ✓" : "Add to Cart"}
                   </Button>
@@ -1094,7 +1032,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     onClick={handleBuyNow}
                     disabled={isBuyingNow}
                     variant="outline"
-                    className="w-full border-2 border-black text-black hover:bg-black hover:text-white py-3 text-lg font-medium disabled:opacity-50"
+                    className="w-full border-2 border-black text-black hover:bg-black hover:text-white py-2.5 text-base font-medium disabled:opacity-50"
                   >
                     {isBuyingNow ? "Processing..." : "Buy Now"}
                   </Button>

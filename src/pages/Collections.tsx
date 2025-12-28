@@ -115,9 +115,9 @@ const Collections = () => {
               {(hasCartItems || hasLikedItems) && (
                 <div className="flex justify-center mt-12">
                   <Link to="/checkout" onClick={handleProceedToCheckout}>
-                    <Button 
-                      size="lg" 
-                      className="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg px-12 py-6 rounded-full shadow-2xl shadow-orange-600/25 hover:shadow-2xl transition-all duration-300 flex items-center gap-3"
+                    <Button
+                      size="lg"
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-lg px-12 py-6 rounded-full shadow-2xl shadow-blue-600/25 hover:shadow-2xl transition-all duration-300 flex items-center gap-3"
                     >
                       <ShoppingBag className="w-5 h-5" />
                       Proceed to Checkout

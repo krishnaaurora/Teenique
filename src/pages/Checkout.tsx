@@ -1,108 +1,259 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useCart } from '@/contexts/CartContext';
+import { MessageCircle, Minus } from 'lucide-react';
+import FashionLayout from '@/components/FashionLayout';
+import { products } from '@/data/products';
 import './Checkout.css';
-import FashionLayout from "@/components/FashionLayout";
-import CheckoutForm from "@/components/checkout/CheckoutForm";
-import { useCart } from "@/contexts/CartContext";
-import { Home, Briefcase, MapPin, Package, Phone, Bell, BellOff, Shield } from 'lucide-react';
-import OrderSummary from '@/components/checkout/OrderSummary';
-import WhatsAppOrderButton from '@/components/checkout/WhatsAppOrderButton';
 
 const Checkout = () => {
-  const { cart } = useCart();
+  const { cart, cartTotal, removeFromCart } = useCart();
   const [formData, setFormData] = useState({
+    country: 'India',
     firstName: '',
     lastName: '',
-    email: '',
-    phone: '',
-    flat: '',
-    street: '',
-    landmark: '',
+    address: '',
+    postalCode: '',
     city: '',
-    state: '',
-    pincode: '',
-    addressType: 'Home',
-    deliveryInstructions: [],
-    // removed saveAddress and setDefault per UI change
+    phone: '',
+    email: '',
+    newsletter: false
   });
 
-  const [focusedFields, setFocusedFields] = useState({});
+  const subtotal = cartTotal;
+  const shipping = 0;
+  const discount = 0;
+  const total = subtotal + shipping - discount;
 
-  const handleChange = (e: React.ChangeEvent<any>) => {
-    const target = e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-    const { name, type } = target as HTMLInputElement;
-    let value: any = (target as HTMLInputElement).value;
-    if (type === 'checkbox') value = (target as HTMLInputElement).checked;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleInputChange = (e) => {
+    const { name, value, type } = e.target;
+    const checked = e.target.checked;
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
 
-  const handleFocus = (field: string) => {
-    setFocusedFields(prev => ({ ...prev, [field]: true }));
-  };
-
-  const handleBlur = (field: string) => {
-    setFocusedFields(prev => ({ ...prev, [field]: false }));
-  };
-
-  // Form validation (for section completion indicators)
-  const isContactInfoComplete = formData.firstName && formData.lastName && formData.email && formData.phone;
-  const isShippingAddressComplete = formData.flat && formData.street && formData.city && formData.state && formData.pincode;
-
-  const whatsappMessage = useMemo(() => {
-    let message = "New Order:\n\n";
-
-    // Contact Info
-    message += `Contact Information:\n`;
+  const handlePlaceOrder = () => {
+    let message = `🛒 New Order\n\n`;
     message += `Name: ${formData.firstName} ${formData.lastName}\n`;
     message += `Email: ${formData.email}\n`;
     message += `Phone: ${formData.phone}\n\n`;
 
-    // Shipping Address
-    message += `Shipping Address:\n`;
-    message += `Flat/House: ${formData.flat}\n`;
-    message += `Street/Area: ${formData.street}\n`;
-    if (formData.landmark) message += `Landmark: ${formData.landmark}\n`;
-    message += `City: ${formData.city}\n`;
-    message += `State: ${formData.state}\n`;
-    message += `PIN Code: ${formData.pincode}\n`;
-    message += `Country: India\n`;
-    message += `Address Type: ${formData.addressType}\n`;
-    if (formData.deliveryInstructions.length > 0) {
-      message += `Delivery Instructions: ${formData.deliveryInstructions.join(', ')}\n`;
-    }
-    // saveAddress and setDefault removed from payload
+    message += `Address:\n`;
+    message += `${formData.address}\n`;
+    message += `${formData.city} - ${formData.postalCode}\n`;
+    message += `${formData.country}\n\n`;
 
-    // Order Summary
-    message += `Order Summary:\n`;
+    message += `Order Items:\n`;
     cart.forEach(item => {
-      message += `${item.name} - Size: ${item.size} - Qty: ${item.quantity} - ₹${item.price}\n`;
+      const product = products.find(p => p.id === item.id);
+      const productCode = product?.code || 'N/A';
+      message += `- ${item.name} (${item.color || 'N/A'}) - Code: ${productCode} × ${item.quantity} – ₹${(item.price * item.quantity).toLocaleString('en-IN')}\n`;
     });
-    message += `\nTotal Items: ${cart.reduce((sum, item) => sum + item.quantity, 0)}\n`;
 
-    return encodeURIComponent(message);
-  }, [formData, cart]);
+    message += `\nSubtotal: ₹${subtotal.toLocaleString('en-IN')}\n`;
+    message += `Shipping: ₹${shipping.toLocaleString('en-IN')}\n`;
+    message += `Discount: ₹${discount.toLocaleString('en-IN')}\n`;
+    message += `Total: ₹${total.toLocaleString('en-IN')}\n`;
 
-  const order = {
-    items: cart.map((item) => ({ name: item.name, code: item.code, size: item.size, qty: item.quantity, price: item.price })),
-    subtotal: cart.reduce((sum, it) => sum + it.price * it.quantity, 0),
-    tax: 130,
-    total: cart.reduce((sum, it) => sum + it.price * it.quantity, 0) + 130,
+    const whatsappUrl = `https://wa.me/919866685221?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
+
+  const isFormValid = formData.firstName && formData.lastName && formData.address &&
+                     formData.postalCode && formData.city && formData.phone && formData.email;
 
   return (
     <FashionLayout>
-      <div className="checkout">
+      <div className="checkout-container">
         <div className="checkout-grid">
-
-          {/* Left Side: Contact Information and Shipping Address (now using CheckoutForm) */}
           <div className="checkout-left">
-            <CheckoutForm formData={formData} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
+            <div className="contact-form">
+              <h1 className="form-title">Contact Information</h1>
+
+              <div className="form-group">
+                <label className="form-label">Country</label>
+                <select
+                  name="country"
+                  value={formData.country}
+                  onChange={handleInputChange}
+                  className="form-input"
+                >
+                  <option value="India">India</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">First Name</label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="John"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Last Name</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="Doe"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="Street address, apartment, etc."
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Postal Code</label>
+                  <input
+                    type="text"
+                    name="postalCode"
+                    value={formData.postalCode}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="400001"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="Mumbai"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="your@email.com"
+                />
+              </div>
+
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="newsletter"
+                    checked={formData.newsletter}
+                    onChange={handleInputChange}
+                    className="checkbox-input"
+                  />
+                  <span className="checkmark"></span>
+                  Email me with news and offers
+                </label>
+              </div>
+            </div>
           </div>
 
-          {/* Right Side: Order Summary (component) */}
           <div className="checkout-right">
-            <OrderSummary />
-            <div className="card">
-              <WhatsAppOrderButton formData={formData} order={order} />
+            <div className="shopping-cart">
+              <h2 className="cart-title">Shopping Cart</h2>
+              <p className="cart-subtitle">You have {cart.length} item{cart.length !== 1 ? 's' : ''} in your cart.</p>
+
+              <div className="cart-items">
+                {cart.map((item) => (
+                  <div key={`${item.id}-${item.color}-${item.size}`} className="cart-item">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="cart-item-image"
+                    />
+                    <div className="cart-item-details">
+                      <h3 className="cart-item-name">{item.name}</h3>
+                      <p className="cart-item-variant">
+                        Code: {(() => {
+                          const product = products.find(p => p.id === item.id);
+                          return product?.code || 'N/A';
+                        })()}
+                        {item.color && ` • Color: ${item.color}`}
+                        {item.size && ` • Size: ${item.size}`}
+                      </p>
+                    </div>
+                    <div className="cart-item-actions">
+                      <button
+                        onClick={() => removeFromCart(item.id, item.color, item.size)}
+                        className="remove-item-btn"
+                        title="Remove item"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <div className="cart-item-price">
+                        ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="cart-summary">
+                <div className="summary-row">
+                  <span>Subtotal</span>
+                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="summary-row">
+                  <span>Shipping Cost</span>
+                  <span>₹{shipping.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="summary-row">
+                  <span>Discount</span>
+                  <span>-₹{discount.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="summary-row total">
+                  <span>Total</span>
+                  <span>₹{total.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+
+              <button
+                className="place-order-btn"
+                onClick={handlePlaceOrder}
+                disabled={!isFormValid}
+              >
+                <MessageCircle className="w-5 h-5" />
+                Place Order
+              </button>
             </div>
           </div>
         </div>
