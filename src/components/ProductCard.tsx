@@ -6,7 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 // Product Images (update paths as needed)
 import r2tBlackBack from "@/../products/RPODUCT CODE 00002T/black back.png";
@@ -170,6 +170,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const lastClickRef = useRef(0);
   const clickTimeoutRef = useRef<number | null>(null);
+  const reviewsScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (reviewsScrollRef.current) {
+        const el = reviewsScrollRef.current;
+        el.scrollLeft += 1;
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth) {
+          el.scrollLeft = 0;
+        }
+      }
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
 
   // Product-specific image map
   const productImageMap: Record<
@@ -859,7 +873,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           onClick={handleModalClose}
         >
           <div
-            className="relative w-full max-w-6xl mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden"
+            className="relative w-full md:max-w-3xl md:mx-4 bg-white rounded-none md:rounded-2xl shadow-none md:shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -870,211 +884,262 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <X className="w-5 h-5" />
             </button>
 
-            <div className="p-4">
-              <Tabs defaultValue="details" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="details">Details</TabsTrigger>
-                  <TabsTrigger value="model">Model View</TabsTrigger>
-                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                </TabsList>
-                <TabsContent value="details" className="mt-4">
-                  <div className="flex flex-col h-full">
-                    <div className="flex-1">
-                      {/* Product Title */}
-                      <h2 className="text-2xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                        {product.name}
-                      </h2>
-                      {/* Price */}
-                      <p className="text-xl font-semibold text-gray-900 mb-3">₹{product.price}</p>
-                      {/* Stock Status */}
-                      <div className="mb-4">
-                        <span className="text-xs text-green-600 font-medium">In Stock</span>
-                      </div>
-                      {/* Size Selection */}
-                      {showSizes && (
-                        <div className="mb-4">
-                          <h3 className="text-xs font-medium text-gray-900 mb-2">Size</h3>
-                          <div className="flex gap-2">
-                            {SIZE_OPTIONS.map((size) => (
-                              <button
-                                key={size}
-                                onClick={() => setSelectedSize(size)}
-                                className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
-                                  selectedSize === size
-                                    ? "border-black bg-black text-white"
-                                    : "border-gray-300 hover:border-gray-400 text-gray-700"
-                                }`}
-                              >
-                                {size}
-                              </button>
-                            ))}
-                          </div>
-                          {validationErrors.size && (
-                            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-                              <p className="text-red-600 text-xs font-medium">⚠️ Please select a size to continue</p>
+            <div className="md:flex">
+              {/* Left: Image Section */}
+              <div className="md:w-1/2 p-4">
+                <div className="relative">
+                  <img
+                    src={config.images[selectedColor]?.[selectedAngle] || placeholderImage}
+                    alt={`${product.name} - ${selectedColor} ${selectedAngle}`}
+                    className="w-full h-auto max-h-[30vh] md:max-h-[50vh] object-contain rounded-lg"
+                    onClick={cycleAngle}
+                    onTouchStart={onTouchStart}
+                    onTouchMove={onTouchMove}
+                    onTouchEnd={onTouchEnd}
+                  />
+
+                  {/* Navigation Arrows Removed */}
+                </div>
+
+                {/* Angle/View Selection Buttons Below Image */}
+                {config.angleOptions.length > 1 && (
+                  <div className="mt-4">
+                    <div className="flex justify-center gap-2 flex-wrap">
+                      {config.angleOptions.map((angle) => (
+                        <button
+                          key={angle.key}
+                          onClick={() => setSelectedAngle(angle.key)}
+                          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                            selectedAngle === angle.key
+                              ? "border-black bg-black text-white"
+                              : "border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          {angle.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right: Product Info Panel */}
+              <div className="md:w-1/2 p-4 flex flex-col">
+                <div className="flex-1">
+                  {/* Product Title */}
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                    {product.name}
+                  </h2>
+
+                  {/* Price */}
+                  <p className="text-lg md:text-xl font-semibold text-gray-900 mb-3">₹{product.price}</p>
+
+                  {/* Product Code */}
+                  <p className="text-sm text-gray-600 mb-2">Product Code: {product.code}</p>
+
+                  {/* Description Collapsible */}
+                  <Collapsible className="mb-4">
+                    <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-left border-t pt-4">
+                      <span className="text-sm font-medium">Description</span>
+                      <span className="text-sm">▼</span>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <p className="text-xs md:text-sm text-gray-700 mt-2">
+                        Crafted with premium materials and tailored for statement-making looks. Pair it with minimalist accessories for a sleek daytime fit or layer it with bold textures for night outs.
+                      </p>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  {/* Customer Reviews Collapsible */}
+                  <Collapsible className="mb-4">
+                    <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-left border-t pt-4">
+                      <span className="text-sm font-medium">Customer Reviews (3)</span>
+                      <span className="text-sm">▼</span>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div ref={reviewsScrollRef} className="overflow-x-auto pb-2 mt-2">
+                        <div className="flex gap-4 min-w-max">
+                          <div className="border rounded-lg p-4 min-w-[300px]">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">John D.</span>
+                                <div className="flex">
+                                  {[...Array(5)].map((_, i) => (
+                                    <span key={i} className="text-yellow-400">★</span>
+                                  ))}
+                                </div>
+                              </div>
+                              <span className="text-sm text-gray-500">2 days ago</span>
                             </div>
-                          )}
+                            <p className="text-sm text-gray-700">Amazing quality! Fits perfectly and looks even better in person. Highly recommend for everyday wear.</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>Verified Purchase</span>
+                              <span>Helpful (12)</span>
+                            </div>
+                          </div>
+                          <div className="border rounded-lg p-4 min-w-[300px]">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">Sarah M.</span>
+                                <div className="flex">
+                                  {[...Array(4)].map((_, i) => (
+                                    <span key={i} className="text-yellow-400">★</span>
+                                  ))}
+                                  <span className="text-gray-300">★</span>
+                                </div>
+                              </div>
+                              <span className="text-sm text-gray-500">1 week ago</span>
+                            </div>
+                            <p className="text-sm text-gray-700">Love the design, but runs a bit small. Would recommend sizing up if you're between sizes.</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>Verified Purchase</span>
+                              <span>Helpful (8)</span>
+                            </div>
+                          </div>
+                          <div className="border rounded-lg p-4 min-w-[300px]">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">Alex K.</span>
+                                <div className="flex">
+                                  {[...Array(5)].map((_, i) => (
+                                    <span key={i} className="text-yellow-400">★</span>
+                                  ))}
+                                </div>
+                              </div>
+                              <span className="text-sm text-gray-500">3 days ago</span>
+                            </div>
+                            <p className="text-sm text-gray-700">Perfect for everyday wear. Comfortable material and stylish design. Will definitely buy again!</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>Verified Purchase</span>
+                              <span>Helpful (15)</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  {/* Stock Status */}
+                  <div className="mb-4">
+                    <span className="text-xs text-green-600 font-medium">In Stock</span>
+                  </div>
+
+                  {/* Size Selection */}
+                  {showSizes && (
+                    <div className="mb-4">
+                      <h3 className="text-xs font-medium text-gray-900 mb-2">Size</h3>
+                      <div className="flex gap-2">
+                        {SIZE_OPTIONS.map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => setSelectedSize(size)}
+                            className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                              selectedSize === size
+                                ? "border-black bg-black text-white"
+                                : "border-gray-300 hover:border-gray-400 text-gray-700"
+                            }`}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                      {validationErrors.size && (
+                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-red-600 text-xs font-medium">⚠️ Please select a size to continue</p>
                         </div>
                       )}
-                      {/* Color Selection */}
-                      <div className="mb-4">
-                        <h3 className="text-xs font-medium text-gray-900 mb-2">Color</h3>
-                        <div className="flex gap-2">
-                          {config.colorOptions.map((color) => (
-                            <button
-                              key={color.key}
-                              onClick={() => {
-                                setSelectedColor(color.key);
-                                setSelectedAngle(config.defaultAngle);
-                              }}
-                              className={`w-6 h-6 rounded-full border-2 ${
-                                selectedColor === color.key ? 'border-black' : 'border-gray-300'
-                              }`}
-                              style={{ backgroundColor: color.hex }}
-                            />
-                          ))}
-                        </div>
-                        {validationErrors.color && (
-                          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-red-600 text-xs font-medium">⚠️ Please select a color to continue</p>
-                          </div>
-                        )}
-                      </div>
-                      {/* Quantity Selector */}
-                      <div className="mb-6">
-                        <h3 className="text-xs font-medium text-gray-900 mb-2">Quantity</h3>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center border border-gray-300 rounded-lg">
-                            <button
-                              onClick={() => {
-                                const currentQty = cartItem ? cartItem.quantity : 0;
-                                if (currentQty > 0) {
-                                  try {
-                                    updateQuantityHandler(Number(product.id), currentQty - 1, selectedColor || undefined, selectedSize || undefined);
-                                  } catch (err) {}
-                                }
-                              }}
-                              className="px-2 py-1 hover:bg-gray-50 text-sm"
-                            >
-                              −
-                            </button>
-                            <span className="px-3 py-1 border-x border-gray-300 text-sm">{cartItem ? cartItem.quantity : 0}</span>
-                            <button
-                              onClick={() => {
-                                const currentQty = cartItem ? cartItem.quantity : 0;
-                                if (currentQty > 0) {
-                                  try {
-                                    updateQuantityHandler(Number(product.id), currentQty + 1, selectedColor || undefined, selectedSize || undefined);
-                                  } catch (err) {}
-                                } else {
-                                  addToCartHandler(product as any, selectedColor || undefined, selectedSize || undefined, currentImage);
-                                }
-                              }}
-                              className="px-2 py-1 hover:bg-gray-50 text-sm"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                        {validationErrors.quantity && (
-                          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-red-600 text-xs font-medium">⚠️ Please select quantity to continue</p>
-                          </div>
-                        )}
-                      </div>
                     </div>
-                    {/* CTA Buttons */}
-                    <div className="space-y-2">
-                      <Button
-                        onClick={handleAddToCart}
-                        disabled={isAddingToCart}
-                        className="w-full bg-black hover:bg-gray-800 text-white py-2.5 text-base font-medium disabled:opacity-50"
-                      >
-                        {isAddingToCart ? "Added ✓" : "Add to Cart"}
-                      </Button>
-                      <Button
-                        onClick={handleBuyNow}
-                        disabled={isBuyingNow}
-                        variant="outline"
-                        className="w-full border-2 border-black text-black hover:bg-black hover:text-white py-2.5 text-base font-medium disabled:opacity-50"
-                      >
-                        {isBuyingNow ? "Processing..." : "Buy Now"}
-                      </Button>
+                  )}
+
+                  {/* Color Selection */}
+                  <div className="mb-4">
+                    <h3 className="text-xs font-medium text-gray-900 mb-2">Color</h3>
+                    <div className="flex gap-2">
+                      {config.colorOptions.map((color) => (
+                        <button
+                          key={color.key}
+                          onClick={() => {
+                            setSelectedColor(color.key);
+                            setSelectedAngle(config.defaultAngle);
+                          }}
+                          className={`w-6 h-6 rounded-full border-2 ${
+                            selectedColor === color.key ? 'border-black' : 'border-gray-300'
+                          }`}
+                          style={{ backgroundColor: color.hex }}
+                        />
+                      ))}
                     </div>
+                    {validationErrors.color && (
+                      <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-600 text-xs font-medium">⚠️ Please select a color to continue</p>
+                      </div>
+                    )}
                   </div>
-                </TabsContent>
-                <TabsContent value="model" className="mt-4">
-                  <div className="space-y-4">
-                    <img
-                      src={config.images[selectedColor]?.[selectedAngle] || placeholderImage}
-                      alt={`${product.name} - ${selectedColor} ${selectedAngle}`}
-                      className="w-full h-auto max-h-[50vh] object-contain rounded-lg"
-                    />
-                    {/* Dummy Reviews */}
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold">Customer Reviews</h3>
-                      <div className="space-y-2">
-                        <div className="border rounded p-3">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">John D.</span>
-                            <span className="text-yellow-500">★★★★★</span>
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">Amazing quality! Fits perfectly and looks even better in person.</p>
-                        </div>
-                        <div className="border rounded p-3">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">Sarah M.</span>
-                            <span className="text-yellow-500">★★★★☆</span>
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">Love the design, but runs a bit small. Would recommend sizing up.</p>
-                        </div>
-                        <div className="border rounded p-3">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">Alex K.</span>
-                            <span className="text-yellow-500">★★★★★</span>
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">Perfect for everyday wear. Comfortable and stylish!</p>
-                        </div>
+
+                  {/* Quantity Selector */}
+                  <div className="mb-6">
+                    <h3 className="text-xs font-medium text-gray-900 mb-2">Quantity</h3>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center border border-gray-300 rounded-lg">
+                        <button
+                          onClick={() => {
+                            const currentQty = cartItem ? cartItem.quantity : 0;
+                            if (currentQty > 0) {
+                              try {
+                                updateQuantityHandler(Number(product.id), currentQty - 1, selectedColor || undefined, selectedSize || undefined);
+                              } catch (err) {}
+                            }
+                          }}
+                          className="px-2 py-1 hover:bg-gray-50 text-sm"
+                        >
+                          −
+                        </button>
+                        <span className="px-3 py-1 border-x border-gray-300 text-sm">{cartItem ? cartItem.quantity : 0}</span>
+                        <button
+                          onClick={() => {
+                            const currentQty = cartItem ? cartItem.quantity : 0;
+                            if (currentQty > 0) {
+                              try {
+                                updateQuantityHandler(Number(product.id), currentQty + 1, selectedColor || undefined, selectedSize || undefined);
+                              } catch (err) {}
+                            } else {
+                              addToCartHandler(product as any, selectedColor || undefined, selectedSize || undefined, currentImage);
+                            }
+                          }}
+                          className="px-2 py-1 hover:bg-gray-50 text-sm"
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
+                    {validationErrors.quantity && (
+                      <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-600 text-xs font-medium">⚠️ Please select quantity to continue</p>
+                      </div>
+                    )}
                   </div>
-                </TabsContent>
-                <TabsContent value="reviews" className="mt-4">
-                  <div className="space-y-3">
-                    <h3 className="text-lg font-semibold">All Reviews</h3>
-                    <div className="space-y-2">
-                      <div className="border rounded p-3">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">John D.</span>
-                          <span className="text-yellow-500">★★★★★</span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">Amazing quality! Fits perfectly and looks even better in person.</p>
-                      </div>
-                      <div className="border rounded p-3">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Sarah M.</span>
-                          <span className="text-yellow-500">★★★★☆</span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">Love the design, but runs a bit small. Would recommend sizing up.</p>
-                      </div>
-                      <div className="border rounded p-3">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Alex K.</span>
-                          <span className="text-yellow-500">★★★★★</span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">Perfect for everyday wear. Comfortable and stylish!</p>
-                      </div>
-                      <div className="border rounded p-3">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Emma L.</span>
-                          <span className="text-yellow-500">★★★★★</span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">Great material and design. Highly recommend!</p>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="space-y-2">
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={isAddingToCart}
+                    className="w-full bg-black hover:bg-gray-800 text-white py-2.5 text-base font-medium disabled:opacity-50"
+                  >
+                    {isAddingToCart ? "Added ✓" : "Add to Cart"}
+                  </Button>
+                  <Button
+                    onClick={handleBuyNow}
+                    disabled={isBuyingNow}
+                    variant="outline"
+                    className="w-full border-2 border-black text-black hover:bg-black hover:text-white py-2.5 text-base font-medium disabled:opacity-50"
+                  >
+                    {isBuyingNow ? "Processing..." : "Buy Now"}
+                  </Button>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
