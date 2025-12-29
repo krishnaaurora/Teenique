@@ -5,6 +5,22 @@ import FashionLayout from '@/components/FashionLayout';
 import { products } from '@/data/products';
 import './Checkout.css';
 
+// Step 1: Get location (with permission)
+function getUserLocation() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resolve({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+      },
+      () => reject(),
+      { enableHighAccuracy: true }
+    );
+  });
+}
+
 const Checkout = () => {
   const { cart, cartTotal, removeFromCart } = useCart();
   const [formData, setFormData] = useState({
@@ -34,7 +50,7 @@ const Checkout = () => {
     }));
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     let message = `🛒 New Order\n\n`;
     message += `Name: ${formData.firstName} ${formData.lastName}\n`;
     message += `Email: ${formData.email}\n`;
@@ -57,8 +73,27 @@ const Checkout = () => {
     message += `Discount: ₹${discount.toLocaleString('en-IN')}\n`;
     message += `Total: ₹${total.toLocaleString('en-IN')}\n`;
 
-    const whatsappUrl = `https://wa.me/919866685221?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    // Step 2: WhatsApp order handler (THIS IS THE KEY PART)
+    let locationLine = "📍 Location: Not shared";
+
+    try {
+      const { lat, lng } = await getUserLocation();
+      locationLine = `📍 Location: https://www.google.com/maps?q=${lat},${lng}`;
+    } catch {
+      // user denied location → continue without it
+    }
+
+    // 👇 MERGE EVERYTHING INTO ONE MESSAGE
+    const finalMessage = `
+🛒 New Order
+
+${message}
+
+${locationLine}
+`;
+
+    const url = `https://wa.me/+919866685221?text=${encodeURIComponent(finalMessage)}`;
+    window.open(url, "_blank");
   };
 
   const isFormValid = formData.firstName && formData.lastName && formData.address &&
