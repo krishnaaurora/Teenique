@@ -245,6 +245,7 @@ ${locationLine}
                         {item.color && ` • Color: ${item.color}`}
                         {item.size && ` • Size: ${item.size}`}
                       </p>
+                      <p className="cart-item-quantity">x{item.quantity}</p>
                     </div>
                     <div className="cart-item-actions">
                       <button

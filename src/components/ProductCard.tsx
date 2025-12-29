@@ -721,43 +721,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
     // Clear previous errors
     setValidationErrors({});
 
-    // Validate selections
+    // Set defaults if not selected
+    if (showSizes && !selectedSize) {
+      setSelectedSize('M');
+    }
+    if (hasModalSwatches && !selectedColor) {
+      setSelectedColor(config?.defaultColor || 'default');
+    }
+
+    // Validate selections (now should pass with defaults)
     const errors: {size?: string; color?: string; quantity?: string} = {};
 
-    if (showSizes && !selectedSize) {
-      errors.size = "Please select a size";
-    }
+    // Removed validations since we set defaults
 
-    if (hasModalSwatches && !selectedColor) {
-      errors.color = "Please select a color";
-    }
-
-    const currentQuantity = cartItem ? cartItem.quantity : 0;
-    if (currentQuantity < 1) {
-      errors.quantity = "Please select quantity";
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
-      return;
-    }
+    // Determine the selected image
+    const selectedImage = config?.images[selectedColor]?.[selectedAngle] || placeholderImage;
 
     // Add item to cart and navigate to checkout
-    setIsBuyingNow(true);
-
     addToCartHandler(product, selectedColor || undefined, selectedSize || undefined, selectedImage);
 
-    showToast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
-
     // Navigate to checkout
-    navigate('/checkout');
-
-    setTimeout(() => {
-      setIsBuyingNow(false);
-    }, 1000);
+    setIsModalOpen(false);
+    setTimeout(() => navigate('/checkout'), 100);
   };
 
   const handleRemoveFromCart = () => {
