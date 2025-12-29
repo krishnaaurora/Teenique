@@ -114,74 +114,76 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
 
         {/* Location picker removed */}
 
-        <div className={`relative ${centerLogo ? "" : ""}`}>
-          <button
-            onClick={() => setShowCart(!showCart)}
-            className="relative flex items-center gap-2 px-3 py-2 rounded-full hover:bg-[#1E88E5] transition-all duration-300"
-          >
-            <ShoppingCart className={`w-7 h-7 stroke-[2.5] cart-icon-pulse transition-all duration-300 hover:stroke-[3] hover:text-black hover:font-bold ${cartIconBlue ? 'text-sky-400' : 'text-black'}`} />
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-xs font-bold text-white shadow-lg">
-                {cartCount}
-              </span>
-            )}
-          </button>
+        {!isHomePage && (
+          <div className={`relative ${centerLogo ? "" : ""}`}>
+            <button
+              onClick={() => setShowCart(!showCart)}
+              className="relative flex items-center gap-2 px-3 py-2 rounded-full hover:bg-[#1E88E5] transition-all duration-300"
+            >
+              <ShoppingCart className={`w-7 h-7 stroke-[2.5] cart-icon-pulse transition-all duration-300 hover:stroke-[3] hover:text-black hover:font-bold ${cartIconBlue ? 'text-sky-400' : 'text-black'}`} />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-xs font-bold text-white shadow-lg">
+                  {cartCount}
+                </span>
+              )}
+            </button>
 
-          {/* Cart Dropdown */}
-          {showCart && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-pink-100 p-6 z-50 animate-in fade-in slide-in-from-top-2">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-foreground">Shopping Cart</h3>
-                <button
-                  onClick={() => setShowCart(false)}
-                  className="hover:bg-gray-100 p-1 rounded transition"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {cart.length === 0 ? (
-                <div className="text-center py-8">
-                  <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                  <p className="text-muted-foreground">Your cart is empty</p>
+            {/* Cart Dropdown */}
+            {showCart && (
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-pink-100 p-6 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-foreground">Shopping Cart</h3>
+                  <button
+                    onClick={() => setShowCart(false)}
+                    className="hover:bg-gray-100 p-1 rounded transition"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-              ) : (
-                <>
-                  <div className="space-y-3 max-h-80 overflow-y-auto mb-4">
-                    {cart.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex gap-3 p-3 bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg border border-pink-100 hover:border-pink-300 transition"
-                      >
-                        <div className="w-16 h-16 bg-gradient-to-br from-emerald-200 to-emerald-300 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-bold text-emerald-900">IMG</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-foreground truncate">{item.name}</p>
-                          <p className="text-xs text-muted-foreground">Category: {item.category}</p>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm font-bold text-pink-600">₹{item.price}</span>
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
-                              Qty: {item.quantity}
-                            </span>
+
+                {cart.length === 0 ? (
+                  <div className="text-center py-8">
+                    <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                    <p className="text-muted-foreground">Your cart is empty</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-3 max-h-80 overflow-y-auto mb-4">
+                      {cart.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex gap-3 p-3 bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg border border-pink-100 hover:border-pink-300 transition"
+                        >
+                          <div className="w-16 h-16 bg-gradient-to-br from-emerald-200 to-emerald-300 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-bold text-emerald-900">IMG</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm text-foreground truncate">{item.name}</p>
+                            <p className="text-xs text-muted-foreground">Category: {item.category}</p>
+                            <div className="flex items-center justify-between mt-2">
+                              <span className="text-sm font-bold text-pink-600">₹{item.price}</span>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">
+                                Qty: {item.quantity}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
 
-                  <button
-                    onClick={handleCheckout}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                    Proceed to Checkout
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+                    <button
+                      onClick={handleCheckout}
+                      className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                      Proceed to Checkout
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );
