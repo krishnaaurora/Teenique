@@ -461,7 +461,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           angle5: screenshot3T_20,
         },
       },
-      defaultColor: "darkgreen",
+      defaultColor: "black",
       defaultAngle: "angle1",
     },
     "Green Back Top": {
