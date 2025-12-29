@@ -197,6 +197,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  // Handle browser back button to close modal
+  useEffect(() => {
+    if (isModalOpen) {
+      const handlePopState = () => {
+        setIsModalOpen(false);
+      };
+      window.addEventListener('popstate', handlePopState);
+      // Push a new history entry to enable back
+      history.pushState(null, '', window.location.href);
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    }
+  }, [isModalOpen]);
+
   // Product-specific image map
   const productImageMap: Record<
     string,
@@ -837,11 +852,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Image Modal */}
       {isModalOpen && hasModalSwatches && config && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
           onClick={handleModalClose}
         >
           <div
-            className="relative w-full md:max-w-3xl md:mx-4 bg-white rounded-none md:rounded-2xl shadow-none md:shadow-2xl overflow-hidden"
+            className="relative w-full h-full bg-white overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -852,50 +867,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <X className="w-5 h-5" />
             </button>
 
-            <div className="md:flex">
-              {/* Left: Image Section */}
-              <div className="md:w-1/2 p-4">
-                <div className="relative">
-                  <img
-                    src={config.images[selectedColor]?.[selectedAngle] || placeholderImage}
-                    alt={`${product.name} - ${selectedColor} ${selectedAngle}`}
-                    className="w-full h-auto max-h-[40vh] md:max-h-[60vh] object-contain rounded-lg"
-                    onClick={cycleAngle}
-                    onTouchStart={onTouchStart}
-                    onTouchMove={onTouchMove}
-                    onTouchEnd={onTouchEnd}
-                  />
-
-                  {/* Navigation Arrows Removed */}
-                </div>
-
-                {/* Angle/View Selection Buttons Below Image */}
-                {config.angleOptions.length > 1 && (
-                  <div className="mt-4">
-                    <div className="flex justify-center gap-2 flex-wrap">
-                      {config.angleOptions.map((angle) => (
-                        <button
-                          key={angle.key}
-                          onClick={() => setSelectedAngle(angle.key)}
-                          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
-                            selectedAngle === angle.key
-                              ? "border-black bg-black text-white"
-                              : "border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          {angle.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Right: Product Info Panel */}
-              <div className="md:w-1/2 p-4 flex flex-col">
-                <div className="flex-1">
+            <div className="flex flex-col md:flex-row h-full md:h-auto">
+              {/* Mobile: Product Info First, Desktop: Image Left, Details Right */}
+              <div className="order-2 md:order-2 md:w-1/2 p-4 flex flex-col min-h-0">
+                <div className="flex-1 overflow-y-auto">
                   {/* Product Title */}
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  <h2 className="text-heading-3 font-bold text-gray-900 mb-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     {product.name}
                   </h2>
 
@@ -1083,34 +1060,73 @@ const ProductCard: React.FC<ProductCardProps> = ({
                           +
                         </button>
                       </div>
+                      {validationErrors.quantity && (
+                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-red-600 text-xs font-medium">⚠️ Please select quantity to continue</p>
+                        </div>
+                      )}
                     </div>
-                    {validationErrors.quantity && (
-                      <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-600 text-xs font-medium">⚠️ Please select quantity to continue</p>
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                {/* CTA Buttons */}
-                <div className="space-y-2">
-                  <Button
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart}
-                    className="w-full bg-black hover:bg-gray-800 text-white py-2.5 text-base font-medium disabled:opacity-50"
-                  >
-                    {isAddingToCart ? "Added ✓" : "Add to Cart"}
-                  </Button>
-                  <Button
-                    onClick={handleBuyNow}
-                    disabled={isBuyingNow}
-                    variant="outline"
-                    className="w-full border-2 border-black text-black hover:bg-black hover:text-white py-2.5 text-base font-medium disabled:opacity-50"
-                  >
-                    {isBuyingNow ? "Processing..." : "Buy Now"}
-                  </Button>
+                {/* CTA Buttons - Sticky at bottom */}
+                <div className="flex-shrink-0 border-t pt-4 mt-4">
+                  <div className="space-y-2">
+                    <Button
+                      onClick={handleAddToCart}
+                      disabled={isAddingToCart}
+                      className="w-full bg-black hover:bg-gray-800 text-white py-2.5 text-base font-medium disabled:opacity-50"
+                    >
+                      {isAddingToCart ? "Added ✓" : "Add to Cart"}
+                    </Button>
+                    <Button
+                      onClick={handleBuyNow}
+                      disabled={isBuyingNow}
+                      variant="outline"
+                      className="w-full border-2 border-black text-black hover:bg-black hover:text-white py-2.5 text-base font-medium disabled:opacity-50"
+                    >
+                      {isBuyingNow ? "Processing..." : "Buy Now"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Image Section - Desktop: Left, Mobile: Above */}
+              <div className="order-1 md:order-1 md:w-1/2 p-4">
+                <div className="relative">
+                  <img
+                    src={config.images[selectedColor]?.[selectedAngle] || placeholderImage}
+                    alt={`${product.name} - ${selectedColor} ${selectedAngle}`}
+                    className="w-full h-auto max-h-[40vh] md:max-h-[60vh] object-contain rounded-lg"
+                    onClick={cycleAngle}
+                    onTouchStart={onTouchStart}
+                    onTouchMove={onTouchMove}
+                    onTouchEnd={onTouchEnd}
+                  />
+
+                  {/* Navigation Arrows Removed */}
                 </div>
 
+                {/* Angle/View Selection Buttons Below Image */}
+                {config.angleOptions.length > 1 && (
+                  <div className="mt-4">
+                    <div className="flex justify-center gap-2 flex-wrap">
+                      {config.angleOptions.map((angle) => (
+                        <button
+                          key={angle.key}
+                          onClick={() => setSelectedAngle(angle.key)}
+                          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                            selectedAngle === angle.key
+                              ? "border-black bg-black text-white"
+                              : "border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          {angle.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

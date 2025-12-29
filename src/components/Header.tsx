@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useState, useEffect } from "react";
-import { ShoppingCart, X } from "lucide-react";
+import { ShoppingCart, X, Menu } from "lucide-react";
 import logo from "@/assets/image-removebg-preview.png";
 
 interface HeaderProps {
@@ -22,6 +22,7 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showCart, setShowCart] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Determine nav text color based on current page or cart dropdown state
   const getNavTextColor = () => {
@@ -109,6 +110,19 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
           </nav>
         )}
 
+        {/* Mobile Menu Button */}
+        {!hideNav && !centerLogo && (
+          <button
+            onClick={() => {
+              setShowMobileMenu(!showMobileMenu);
+              setShowCart(false); // Close cart when opening mobile menu
+            }}
+            className="md:hidden flex items-center gap-2 px-3 py-2 rounded-full hover:bg-[#1E88E5] transition-all duration-300"
+          >
+            <Menu className={`w-6 h-6 stroke-[2.5] transition-all duration-300 ${cartIconBlue ? 'text-sky-400' : 'text-black'}`} />
+          </button>
+        )}
+
         {/* Right spacer or cart for centered layout */}
         {centerLogo && <div className="flex-1 flex justify-end" />}
 
@@ -117,7 +131,10 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
         {!isHomePage && (
           <div className={`relative ${centerLogo ? "" : ""}`}>
             <button
-              onClick={() => setShowCart(!showCart)}
+              onClick={() => {
+                setShowCart(!showCart);
+                setShowMobileMenu(false); // Close mobile menu when opening cart
+              }}
               className="relative flex items-center gap-2 px-3 py-2 rounded-full hover:bg-[#1E88E5] transition-all duration-300"
             >
               <ShoppingCart className={`w-7 h-7 stroke-[2.5] cart-icon-pulse transition-all duration-300 hover:stroke-[3] hover:text-black hover:font-bold ${cartIconBlue ? 'text-sky-400' : 'text-black'}`} />
@@ -182,6 +199,47 @@ const Header = ({ forceWhiteText = false, hideNav = false, showLogoBackground = 
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Mobile Menu Overlay */}
+        {showMobileMenu && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowMobileMenu(false)} />
+            <div className="absolute top-0 right-0 h-full w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">Menu</h2>
+                <button
+                  onClick={() => setShowMobileMenu(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
+              <nav className="flex flex-col p-6 space-y-6">
+                <Link
+                  to="/"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors py-2"
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/gallery"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors py-2"
+                >
+                  Style Gallery
+                </Link>
+                <Link
+                  to="/collections"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors py-2"
+                >
+                  Collections
+                </Link>
+              </nav>
+            </div>
           </div>
         )}
       </div>

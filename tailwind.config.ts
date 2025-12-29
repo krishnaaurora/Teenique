@@ -13,6 +13,28 @@ export default {
       },
     },
     extend: {
+      fontSize: {
+        'xs': ['0.75rem', { lineHeight: '1rem' }],
+        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+        'base': ['1rem', { lineHeight: '1.5rem' }],
+        'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+        'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],
+        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+        '5xl': ['3rem', { lineHeight: '1' }],
+        '6xl': ['3.75rem', { lineHeight: '1' }],
+        '7xl': ['4.5rem', { lineHeight: '1' }],
+        '8xl': ['6rem', { lineHeight: '1' }],
+        '9xl': ['8rem', { lineHeight: '1' }],
+        // Responsive clamp headings
+        'heading-1': ['clamp(1.75rem, 4vw, 3.5rem)', { lineHeight: '1.1', fontWeight: '700' }],
+        'heading-2': ['clamp(1.5rem, 3vw, 2.5rem)', { lineHeight: '1.2', fontWeight: '600' }],
+        'heading-3': ['clamp(1.25rem, 2.5vw, 2rem)', { lineHeight: '1.3', fontWeight: '600' }],
+        'heading-4': ['clamp(1.125rem, 2vw, 1.5rem)', { lineHeight: '1.4', fontWeight: '500' }],
+        'heading-5': ['clamp(1rem, 1.5vw, 1.25rem)', { lineHeight: '1.4', fontWeight: '500' }],
+        'heading-6': ['clamp(0.875rem, 1.25vw, 1rem)', { lineHeight: '1.4', fontWeight: '500' }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

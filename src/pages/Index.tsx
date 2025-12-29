@@ -48,10 +48,10 @@ const Index = () => {
       <Header forceWhiteText={true} hideNav={true} showLogoBackground={true} logoBackgroundIntense={true} cartIconBlue={true} isHomePage={true} />
 
       {/* Hero Section: Premium Gen-Z Brand */}
-      <section className="w-full h-screen flex items-center justify-center relative overflow-hidden">
+      <section className="hero-video-section">
         <video
           ref={videoRef}
-          className={`absolute inset-0 w-full h-full object-cover z-0 ${videoEnded ? 'blur-sm' : ''}`}
+          className={`absolute inset-0 w-full h-full object-cover object-center z-0 ${videoEnded ? 'blur-sm' : ''}`}
           src="/Remove_Fade_In_Animation_From_Video.mp4"
           autoPlay
           muted
@@ -62,12 +62,18 @@ const Index = () => {
             }
             setVideoEnded(true);
           }}
+          style={{
+            objectFit: 'cover',
+            objectPosition: 'center',
+            width: '100%',
+            height: '100%'
+          }}
         />
         <div className="absolute inset-0 bg-black bg-opacity-20 z-5"></div>
         {videoEnded && (
           <div className="relative z-10 w-full h-full animate-fadeIn">
             {/* Brand text positioned prominently at top */}
-            <div className="absolute top-[40%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+            <div className="absolute top-[36%] md:top-[40%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
               <DrawLineText
                 text="Teenique"
                 fontSize={120}
@@ -76,14 +82,14 @@ const Index = () => {
                 className="mb-0"
                 onComplete={() => setTextAnimationComplete(true)}
               />
-              <p className={`absolute top-[100%] left-1/1 text-white -mt-2 ${isBold ? 'font-bold' : 'font-normal'}`} style={{ fontSize: '24px', fontFamily: "'Helvetica', sans-serif" }}>
-                Elegance Redesigned<br />
-                <span className="text-orange-400 font-bold text-">  Gen-Z  </span>
+              <p className={`absolute top-[80%] left-1/1 mt-1 md:left-1/1 md:top-[100%] md:-mt-1 text-white text-xl md:text-3xl lg:text-4xl ${isBold ? 'font-bold' : 'font-normal'}`} style={{ fontFamily: "'Helvetica', sans-serif" }}>
+                EleganceRedesigned<br />
+                <span className="text-orange-400 font-bold text">  Gen-Z  </span>
               </p>
             </div>
 
             {/* Shop Now button positioned below social proof as primary CTA */}
-            <div className="absolute top-[68%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+            <div className="absolute top-[58%] md:top-[68%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
               <Link to="/gallery">
                 <button className="button">
                   <span className="text">Shop Now</span>
@@ -97,7 +103,7 @@ const Index = () => {
             </div>
 
             {/* Social proof positioned with small gap from brand text */}
-            <div className="absolute top-[74%] left-1/2 transform -translate-x-1/2 flex gap-8 text-sm text-white/80 justify-center">
+            <div className="absolute top-[64%] md:top-[74%] left-1/2 transform -translate-x-1/2 flex gap-8 text-sm text-white/80 justify-center">
                 {[{n:'50K+',t:'Happy Customers'},{n:'200+',t:'Unique Styles'},{n:'4.9',t:'Rating'}].map((s,idx)=> (
                   <div key={s.n} className="flex flex-col items-center gap-1">
                    <CountingNumber target={s.n} start={textAnimationComplete} className="text-3xl md:text-4xl font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }} />
@@ -145,7 +151,7 @@ const Index = () => {
       {/* Featured Products */}
       <section className="container px-4 py-16 md:py-24">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0F0F0F] mb-4">
+          <h2 className="text-heading-2 font-bold text-[#0F0F0F] mb-4">
             Featured Picks
           </h2>
           <p className="text-[#0F0F0F]/60 max-w-2xl mx-auto">

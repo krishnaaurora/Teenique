@@ -1,9 +1,156 @@
-/* Base font family */
+/* Base font family and responsive typography system */
+html {
+  font-size: 16px; /* Base font size for desktop */
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 14px; /* Reduced font size for mobile */
+  }
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
+  font-size: 1rem; /* 16px on desktop, 14px on mobile */
+  line-height: 1.5;
 }
+
+/* Responsive Heading Typography with clamp() */
+h1 {
+  font-size: clamp(1.75rem, 4vw, 3.5rem); /* 28px to 56px */
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3vw, 2.5rem); /* 24px to 40px */
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2.5vw, 2rem); /* 20px to 32px */
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: clamp(1.125rem, 2vw, 1.5rem); /* 18px to 24px */
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+h5 {
+  font-size: clamp(1rem, 1.5vw, 1.25rem); /* 16px to 20px */
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+h6 {
+  font-size: clamp(0.875rem, 1.25vw, 1rem); /* 14px to 16px */
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* Responsive body text using rem units */
+p {
+  font-size: 1rem; /* Scales with html font-size */
+  line-height: 1.6;
+}
+
+.text-xs {
+  font-size: 0.75rem; /* 12px on desktop, 10.5px on mobile */
+}
+
+.text-sm {
+  font-size: 0.875rem; /* 14px on desktop, 12.25px on mobile */
+}
+
+.text-base {
+  font-size: 1rem; /* 16px on desktop, 14px on mobile */
+}
+
+.text-lg {
+  font-size: 1.125rem; /* 18px on desktop, 15.75px on mobile */
+}
+
+.text-xl {
+  font-size: 1.25rem; /* 20px on desktop, 17.5px on mobile */
+}
+
+.text-2xl {
+  font-size: 1.5rem; /* 24px on desktop, 21px on mobile */
+}
+
+.text-3xl {
+  font-size: 1.875rem; /* 30px on desktop, 26.25px on mobile */
+}
+
+.text-4xl {
+  font-size: 2.25rem; /* 36px on desktop, 31.5px on mobile */
+}
+
+.text-5xl {
+  font-size: 3rem; /* 48px on desktop, 42px on mobile */
+}
+
+.text-6xl {
+  font-size: 3.75rem; /* 60px on desktop, 52.5px on mobile */
+}
+
+.text-7xl {
+  font-size: 4.5rem; /* 72px on desktop, 63px on mobile */
+}
+
+/* Responsive spacing using rem units */
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+.py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+.py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+.py-24 { padding-top: 6rem; padding-bottom: 6rem; }
+
+.px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.px-8 { padding-left: 2rem; padding-right: 2rem; }
+
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
+.m-1 { margin: 0.25rem; }
+.m-2 { margin: 0.5rem; }
+.m-3 { margin: 0.75rem; }
+.m-4 { margin: 1rem; }
+.m-6 { margin: 1.5rem; }
+.m-8 { margin: 2rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mb-12 { margin-bottom: 3rem; }
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-8 { margin-top: 2rem; }
+.mt-12 { margin-top: 3rem; }
 
 @keyframes fadeIn {
   from {
@@ -84,9 +231,52 @@ body {
 @tailwind components;
 @tailwind utilities;
 
-/* Blinking/Pulsing animation for cart icon */
-@keyframes blink-pulse {
+/* Hero Video Section - Fully Responsive */
+.hero-video-section {
+  position: relative;
+  width: 100%;
+  height: 100svh; /* Small viewport height for better mobile experience */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.hero-video-section video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+/* Ensure video covers entire container on all devices */
+@media (max-width: 768px) {
+  .hero-video-section {
+    height: 100svh;
+    min-height: 100svh;
+  }
+  
+  .hero-video-section video {
+    object-fit: cover;
+    object-position: center;
+    /* Prevent any letterboxing on mobile */
+    min-width: 100%;
+    min-height: 100%;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 769px) {
+  .hero-video-section {
+    height: 100vh;
+  }
+}
+
+@keyframes blink-pulse {
   0%,
   100% {
     opacity: 1;

@@ -85,7 +85,7 @@ const Collections = () => {
         <main className="container px-4 py-16 md:py-24 lg:pl-8 relative">
           <div className="text-center mb-12">
             <p className="uppercase tracking-[0.3em] text-sm text-[#111] mb-4">Saved Looks</p>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[#0F0F0F] mb-4 tracking-tight">
+            <h1 className="text-heading-1 font-serif text-[#0F0F0F] mb-4 tracking-tight">
               Your Collections
             </h1>
             {/* Removed descriptive text as requested */}

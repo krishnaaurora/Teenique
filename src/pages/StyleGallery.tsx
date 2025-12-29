@@ -27,7 +27,7 @@ const StyleGallery = () => {
         <main className="container px-4 py-12 md:py-16 lg:pl-8">
           <div className="text-center mb-12">
             <p className="uppercase tracking-[0.3em] text-sm text-[#D9C6A4] mb-4">Curated Collection</p>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[#0F0F0F] mb-4 tracking-tight">
+            <h1 className="text-heading-1 font-serif text-[#0F0F0F] mb-4 tracking-tight">
               Style Gallery
             </h1>
             <p className="text-[#0F0F0F]/70 max-w-2xl mx-auto text-lg">
