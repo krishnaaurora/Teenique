@@ -132,6 +132,7 @@ interface ProductCardProps {
   showSizes?: boolean;
   showPrice?: boolean;
   showCart?: boolean;
+  showLike?: boolean;
   addToCart?: (product: any, size?: string) => void;
   removeFromCart?: (id: string, color?: string, size?: string) => void;
   isLiked?: (id: string) => boolean;
@@ -151,6 +152,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   showSizes = true,
   showPrice = true,
   showCart = true,
+  showLike = true,
   addToCart = () => {},
   removeFromCart = () => {},
   isLiked = () => false,
@@ -364,66 +366,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
     },
     "Hoodie Screenshot": {
       colorOptions: [
-        { name: "White", key: "white", hex: "#FFFFFF" },
         { name: "Black", key: "black", hex: "#000000" },
-        { name: "Grey", key: "grey", hex: "#808080" },
-        { name: "Cream", key: "cream", hex: "#FFFDD0" },
-        { name: "Red", key: "red", hex: "#FF0000" },
-        { name: "Dusty Pink", key: "dustypink", hex: "#DCA0DC" },
-        { name: "Maroon", key: "maroon", hex: "#800000" },
       ],
       angleOptions: [
-        { name: "Angle 1", key: "angle1" },
-        { name: "Angle 2", key: "angle2" },
-        { name: "Angle 3", key: "angle3" },
-        { name: "Angle 4", key: "angle4" },
+        { name: "Front", key: "front" },
       ],
       images: {
-        white: {
-          angle1: hoodieWhite1,
-          angle2: hoodieWhite2,
-          angle3: hoodieWhite3,
-          angle4: hoodieWhite3,
-        },
         black: {
-          angle1: hoodieBlack1,
-          angle2: hoodieBlack2,
-          angle3: hoodieBlack3,
-          angle4: hoodieBlack3,
-        },
-        grey: {
-          angle1: hoodieGrey1,
-          angle2: hoodieGrey1,
-          angle3: hoodieGrey2,
-          angle4: hoodieGrey2,
-        },
-        cream: {
-          angle1: hoodieCream1,
-          angle2: hoodieCream2,
-          angle3: hoodieCream3,
-          angle4: hoodieCream4,
-        },
-        red: {
-          angle1: hoodieRed1,
-          angle2: hoodieRed2,
-          angle3: hoodieRed3,
-          angle4: hoodieRed4,
-        },
-        dustypink: {
-          angle1: hoodieDustyPink1,
-          angle2: hoodieDustyPink2,
-          angle3: hoodieDustyPink3,
-          angle4: hoodieDustyPink4,
-        },
-        maroon: {
-          angle1: hoodieMaroon1,
-          angle2: hoodieMaroon2,
-          angle3: hoodieMaroon3,
-          angle4: hoodieMaroon4,
+          front: screenshotH,
         },
       },
-      defaultColor: "white",
-      defaultAngle: "angle1",
+      defaultColor: "black",
+      defaultAngle: "front",
     },
     "Tee Screenshot 3T": {
       colorOptions: [
@@ -809,16 +763,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {/* arrows moved to modal so nothing here */}
 
             {/* Like Button */}
-            <button
-              onClick={handleLike}
-              className="absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 shadow-md hover:shadow-lg transition-all z-10"
-            >
-              <Heart
-                className={`w-5 h-5 transition-colors ${
-                  liked ? "fill-red-500 text-red-500" : "text-gray-700 hover:text-red-500"
-                }`}
-              />
-            </button>
+            {showLike && (
+              <button
+                onClick={handleLike}
+                className="absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 shadow-md hover:shadow-lg transition-all z-10"
+              >
+                <Heart
+                  className={`w-5 h-5 transition-colors ${
+                    liked ? "fill-red-500 text-red-500" : "text-gray-700 hover:text-red-500"
+                  }`}
+                />
+              </button>
+            )}
 
             {/* Product Code Badge */}
             {product.name === "Back Grey Limited Edition" && (
@@ -876,7 +832,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   <img
                     src={config.images[selectedColor]?.[selectedAngle] || placeholderImage}
                     alt={`${product.name} - ${selectedColor} ${selectedAngle}`}
-                    className="w-full h-auto max-h-[30vh] md:max-h-[50vh] object-contain rounded-lg"
+                    className="w-full h-auto max-h-[40vh] md:max-h-[60vh] object-contain rounded-lg"
                     onClick={cycleAngle}
                     onTouchStart={onTouchStart}
                     onTouchMove={onTouchMove}

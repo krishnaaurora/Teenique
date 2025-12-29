@@ -7,16 +7,31 @@ import { products } from "@/data/products";
 
 
 import CircularProductSlider from "@/components/CircularProductSlider";
+import ExpandableCards from "@/components/ui/expandable-cards";
 import CountingNumber from "@/components/CountingNumber";
 import { TextAnimate } from "@/registry/magicui/text-animate";
 import { TypingAnimation } from "@/registry/magicui/typing-animation";
+import TextPressure from "@/components/TextPressure";
 import { DrawLineText } from "@/components/gsap/draw-line-text";
 
 
 const Index = () => {
-  const featuredProducts = products.slice(0, 3);
+  const featuredProducts = [products[0], products[2]];
+  const productCards = products.slice(0, 5).map((product, index) => ({
+    id: index + 1,
+    content: (
+      <Link to={`/gallery`}>
+        <img
+          src={product.image}
+          className="w-full h-full object-cover scale-75 transition-transform duration-300"
+          alt={product.name}
+        />
+      </Link>
+    ),
+  }));
   const [videoEnded, setVideoEnded] = useState(false);
   const [isBold, setIsBold] = useState(true);
+  const [textAnimationComplete, setTextAnimationComplete] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -50,34 +65,44 @@ const Index = () => {
         />
         <div className="absolute inset-0 bg-black bg-opacity-20 z-5"></div>
         {videoEnded && (
-          <div className="relative z-10 flex flex-col items-center justify-center w-full animate-fadeIn">
-            <DrawLineText
-              text="Teenique"
-              fontSize={120}
-              strokeWidth={1.5}
-              color="white"
-              className="mb-0 mt-12"
-            />
-            <p className={`text-center text-white -mt-2 ${isBold ? 'font-bold' : 'font-normal'}`} style={{ fontSize: '24px', fontFamily: "'Helvetica', sans-serif" }}>
-              Elegance Redesigned For Gen-Z
-            </p>
-            <div className="mt-0">
-              <div className="flex gap-4 mb-8 justify-center">
-                <Link to="/gallery">
-                  <Button size="lg" className="bg-[#E86C0A] text-white font-bold rounded-full px-10 py-5 text-2xl shadow-lg transition-all hover:brightness-95 hover:scale-105 hover:-translate-y-0.5" style={{ fontFamily: "'Poppins', sans-serif", boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
-                    Shop Now &rarr;
-                  </Button>
-                </Link>
-              </div>
-              {/* Social Proof */}
-              <div className="flex gap-8 mt-2 text-sm text-white/80 justify-center">
+          <div className="relative z-10 w-full h-full animate-fadeIn">
+            {/* Brand text positioned prominently at top */}
+            <div className="absolute top-[40%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+              <DrawLineText
+                text="Teenique"
+                fontSize={120}
+                strokeWidth={1.5}
+                color="white"
+                className="mb-0"
+                onComplete={() => setTextAnimationComplete(true)}
+              />
+              <p className={`absolute top-[100%] left-1/1 text-white -mt-2 ${isBold ? 'font-bold' : 'font-normal'}`} style={{ fontSize: '24px', fontFamily: "'Helvetica', sans-serif" }}>
+                Elegance Redesigned For Gen-Z
+              </p>
+            </div>
+
+            {/* Shop Now button positioned below social proof as primary CTA */}
+            <div className="absolute top-[65%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+              <Link to="/gallery">
+                <button className="button">
+                  <span className="text">Shop Now</span>
+                  <div className="svg">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
+                  </div>
+                </button>
+              </Link>
+            </div>
+
+            {/* Social proof positioned with small gap from brand text */}
+            <div className="absolute top-[74%] left-1/2 transform -translate-x-1/2 flex gap-8 text-sm text-white/80 justify-center">
                 {[{n:'50K+',t:'Happy Customers'},{n:'200+',t:'Unique Styles'},{n:'4.9',t:'Rating'}].map((s,idx)=> (
                   <div key={s.n} className="flex flex-col items-center gap-1">
-                   <CountingNumber target={s.n} start={videoEnded} className="text-3xl md:text-4xl font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }} />
+                   <CountingNumber target={s.n} start={textAnimationComplete} className="text-3xl md:text-4xl font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }} />
                      <span className="text-sm md:text-base font-medium" style={{ fontFamily: "'Poppins', sans-serif" }}>{s.t}</span>
                   </div>
                 ))}
-              </div>
             </div>
           </div>
         )}
@@ -89,11 +114,29 @@ const Index = () => {
       <section className="py-12 md:py-20 bg-[#F5F3EF] relative overflow-hidden">
         <div className="container px-4 text-center text-[#0F0F0F] relative z-10">
           <p className="uppercase tracking-[0.35em] text-sm" style={{ color: '#000' }}>Immersive gallery</p>
-          <h2 className="text-4xl md:text-5xl font-semibold mt-4" style={{ color: '#000' }}>Latest Collection in 360º Clothing Orbit</h2>
+        <div style={{position: 'relative', height: '100px'}}>
+          <TextPressure
+            text="Expandable cloth view"
+            flex={true}
+            alpha={false}
+            stroke={false}
+            width={true}
+            weight={true}
+            italic={true}
+            textColor="#000000"
+            strokeColor="#ff0000"
+            minFontSize={24}
+          />
         </div>
-        <div className="mt-12 px-4 relative z-10">
+        </div>
+        <div className="mt-4 px-4 relative z-10">
           <div className="mx-auto max-w-6xl">
-            <CircularProductSlider />
+            <div className="h-[250px] sm:h-[450px] w-full select-none">
+              <ExpandableCards
+                cards={productCards}
+                defaultExpanded={3}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -109,9 +152,9 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 mb-12 max-w-4xl mx-auto">
           {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} showPrice={false} showCart={false} showName={false} />
+            <ProductCard key={product.id} product={product} showPrice={false} showCart={false} showName={false} showLike={false} />
           ))}
         </div>
 

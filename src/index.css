@@ -543,3 +543,74 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Shop Now Button Styles - From Uiverse.io by vinodjangid07 */
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 16px;
+  background-color: #ffcccc;
+  border: 4px solid #ffb3b3;
+  color: #cc0000;
+  gap: 4px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'Poppins', sans-serif;
+  margin-left: 20px;
+}
+.text {
+  font-size: 1.0em;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.svg {
+  padding-top: 1px;
+  height: 100%;
+  width: fit-content;
+}
+.svg svg {
+  width: 25px;
+  height: 15px;
+}
+.button:hover {
+  border: 4px solid #b3d9ff;
+  background-color: #cce6ff;
+  color: #004499;
+}
+.button:active {
+  border: 3px solid #c0dfff;
+}
+.button:hover .svg svg {
+  animation: jello-vertical 0.9s both;
+  transform-origin: left;
+}
+.button:hover .svg svg {
+  animation: jello-vertical 0.9s both;
+  transform-origin: left;
+}
+
+@keyframes jello-vertical {
+  0% {
+    transform: scale3d(1, 1, 1);
+  }
+  30% {
+    transform: scale3d(0.75, 1.25, 1);
+  }
+  40% {
+    transform: scale3d(1.25, 0.75, 1);
+  }
+  50% {
+    transform: scale3d(0.85, 1.15, 1);
+  }
+  65% {
+    transform: scale3d(1.05, 0.95, 1);
+  }
+  75% {
+    transform: scale3d(0.95, 1.05, 1);
+  }
+  100% {
+    transform: scale3d(1, 1, 1);
+  }
+}
