@@ -23,7 +23,7 @@ export const products: Product[] = [
     name: "Back Grey Limited Edition",
     price: 899,
     image: backGrey,
-    category: "Outerwear",
+    category: "Topwear",
     code: "00001H",
   },
   {
@@ -31,7 +31,7 @@ export const products: Product[] = [
     name: "Black Joggers",
     price: 599,
     image: blackJoggers,
-    category: "Bottoms",
+    category: "bottom wear",
     code: "00001j",
   },
   {
@@ -39,7 +39,7 @@ export const products: Product[] = [
     name: "Off White Sweatpants",
     price: 699,
     image: offWhiteSweatpants,
-    category: "Bottoms",
+    category: "bottom wear",
     code: "00001sp",
   },
   {
@@ -47,7 +47,7 @@ export const products: Product[] = [
     name: "Graphic Tee Screenshot",
     price: 599,
     image: screenshotT,
-    category: "Tops",
+    category: "Topwear",
     code: "00001T",
   },
   {
@@ -55,7 +55,7 @@ export const products: Product[] = [
     name: "Hoodie Screenshot",
     price: 699,
     image: screenshotH,
-    category: "Outerwear",
+    category: "Topwear",
     code: "00002H",
   },
   {
@@ -63,7 +63,7 @@ export const products: Product[] = [
     name: "Tee Screenshot 3T",
     price: 599,
     image: screenshot3T_1,
-    category: "Tops",
+    category: "Topwear",
     code: "00003T",
   },
   {
@@ -71,7 +71,7 @@ export const products: Product[] = [
     name: "Green Back Top",
     price: 699,
     image: redBack,
-    category: "Tops",
+    category: "Topwear",
     code: "00004T",
   },
   {
@@ -79,7 +79,7 @@ export const products: Product[] = [
     name: "Black Front Tee",
     price: 499,
     image: r2tBlackFront,
-    category: "Tops",
+    category: "Topwear",
     code: "00002T",
   },
   {
@@ -87,7 +87,7 @@ export const products: Product[] = [
     name: "Hoodie 00003 H",
     price: 599,
     image: hoodie03HBlackFront,
-    category: "Outerwear",
+    category: "Topwear",
     code: "00003H",
   },
 ];

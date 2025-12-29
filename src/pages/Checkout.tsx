@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import qrImage from '@/assets/SCANNERjpeg.jpeg';
 import { useCart } from '@/contexts/CartContext';
 import { MessageCircle, Minus } from 'lucide-react';
 import FashionLayout from '@/components/FashionLayout';
@@ -22,6 +23,7 @@ function getUserLocation() {
 }
 
 const Checkout = () => {
+
   const { cart, cartTotal, removeFromCart } = useCart();
   const [formData, setFormData] = useState({
     country: 'India',
@@ -32,26 +34,53 @@ const Checkout = () => {
     city: '',
     phone: '',
     email: '',
-    newsletter: false
+    newsletter: false,
+    paymentOption: '',
+    utr: '',
   });
+  const [cartLocked, setCartLocked] = useState(false);
+  const [lockedCart, setLockedCart] = useState([]);
+  const [lockedTotal, setLockedTotal] = useState(0);
+  const [orderId, setOrderId] = useState('');
 
-  const subtotal = cartTotal;
+  const subtotal = cartLocked ? lockedTotal : cartTotal;
   const shipping = 0;
   const discount = 0;
   const total = subtotal + shipping - discount;
 
+
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
     const checked = e.target.checked;
-
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
   };
 
+  // Generate unique order ID
+  const generateOrderId = () => {
+    return 'ODR' + Date.now().toString(36).toUpperCase().slice(-8);
+  };
+
+  // Lock cart and amount
+  const handleCheckout = () => {
+    setCartLocked(true);
+    setLockedCart([...cart]);
+    setLockedTotal(cartTotal);
+    setOrderId(generateOrderId());
+  };
+
+
   const handlePlaceOrder = async () => {
+    // Only allow if cart is locked and payment is selected
+    if (!cartLocked || !formData.paymentOption) return;
+    if (formData.paymentOption === 'qr' && !formData.utr) {
+      alert('Please enter UTR / Transaction ID for UPI payment.');
+      return;
+    }
     let message = `🛒 New Order\n\n`;
+    message += `Order ID: ${orderId}\n`;
     message += `Name: ${formData.firstName} ${formData.lastName}\n`;
     message += `Email: ${formData.email}\n`;
     message += `Phone: ${formData.phone}\n\n`;
@@ -62,42 +91,35 @@ const Checkout = () => {
     message += `${formData.country}\n\n`;
 
     message += `Order Items:\n`;
-    cart.forEach(item => {
+    lockedCart.forEach(item => {
       const product = products.find(p => p.id === item.id);
       const productCode = product?.code || 'N/A';
       message += `- ${item.name} (${item.color || 'N/A'}) - Code: ${productCode} × ${item.quantity} – ₹${(item.price * item.quantity).toLocaleString('en-IN')}\n`;
     });
 
-    message += `\nSubtotal: ₹${subtotal.toLocaleString('en-IN')}\n`;
-    message += `Shipping: ₹${shipping.toLocaleString('en-IN')}\n`;
-    message += `Discount: ₹${discount.toLocaleString('en-IN')}\n`;
-    message += `Total: ₹${total.toLocaleString('en-IN')}\n`;
+    message += `\nSubtotal: ₹${lockedTotal.toLocaleString('en-IN')}\n`;
+    message += `Total: ₹${lockedTotal.toLocaleString('en-IN')}\n`;
+    message += `Payment Method: ${formData.paymentOption === 'qr' ? 'UPI QR' : 'Cash on Delivery'}\n`;
+    if (formData.paymentOption === 'qr') {
+      message += `UTR/Transaction ID: ${formData.utr}\n`;
+    }
 
-    // Step 2: WhatsApp order handler (THIS IS THE KEY PART)
+    // Step 2: WhatsApp order handler
     let locationLine = "📍 Location: Not shared";
-
     try {
       const { lat, lng } = await getUserLocation();
       locationLine = `📍 Location: https://www.google.com/maps?q=${lat},${lng}`;
-    } catch {
-      // user denied location → continue without it
-    }
+    } catch {}
 
-    // 👇 MERGE EVERYTHING INTO ONE MESSAGE
-    const finalMessage = `
-🛒 New Order
-
-${message}
-
-${locationLine}
-`;
-
+    const finalMessage = `\n🛒 New Order\n\n${message}\n${locationLine}\n`;
     const url = `https://wa.me/+919866685221?text=${encodeURIComponent(finalMessage)}`;
     window.open(url, "_blank");
   };
 
   const isFormValid = formData.firstName && formData.lastName && formData.address &&
-                     formData.postalCode && formData.city && formData.phone && formData.email;
+                     formData.postalCode && formData.city && formData.phone && formData.email &&
+                     cartLocked && formData.paymentOption &&
+                     (formData.paymentOption === 'cod' || (formData.paymentOption === 'qr' && formData.utr));
 
   return (
     <FashionLayout>
@@ -219,16 +241,78 @@ ${locationLine}
                   Email me with news and offers
                 </label>
               </div>
+              {/* Payment Option Tab */}
+              <div className="form-group payment-tab" style={{ marginTop: 32 }}>
+                <h2 className="form-title">Payment Options</h2>
+                <div style={{ display: 'flex', gap: 24, marginTop: 12 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input
+                      type="radio"
+                      name="paymentOption"
+                      value="qr"
+                      checked={formData.paymentOption === 'qr'}
+                      onChange={handleInputChange}
+                      disabled={!cartLocked}
+                    />
+                    UPI QR Payment
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input
+                      type="radio"
+                      name="paymentOption"
+                      value="cod"
+                      checked={formData.paymentOption === 'cod'}
+                      onChange={handleInputChange}
+                      disabled={!cartLocked}
+                    />
+                    Cash on Delivery
+                  </label>
+                </div>
+                {!cartLocked && (
+                  <button className="place-order-btn" style={{ marginTop: 16 }} onClick={handleCheckout} disabled={cartLocked}>
+                    Lock Cart & Continue to Payment
+                  </button>
+                )}
+                {cartLocked && formData.paymentOption === 'qr' && (
+                  <div style={{ marginTop: 16 }}>
+                    <img src={qrImage} alt="QR Code" style={{ width: 180, height: 180, border: '1px solid #eee', borderRadius: 8 }} />
+                    <div style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Scan to pay</div>
+                    <a
+                      href={`upi://pay?pa=YOUR_UPI_ID@upi&pn=Teenique&am=${lockedTotal}&cu=INR`}
+                      style={{ display: 'block', marginTop: 8, color: '#007bff', textDecoration: 'underline', fontSize: 15 }}
+                    >
+                      Pay using UPI App
+                    </a>
+                    <div style={{ fontSize: 12, color: '#888', marginTop: 2, marginBottom: 8 }}>( you can open payment app only from mobile )</div>
+                    <div style={{ marginTop: 12 }}>
+                      <label style={{ fontWeight: 500 }}>Enter UTR / Transaction ID:</label>
+                      <input
+                        type="text"
+                        name="utr"
+                        value={formData.utr || ''}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        placeholder="Enter UTR / Transaction ID"
+                        style={{ marginTop: 4, width: 220 }}
+                      />
+                      <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>( enter the id after payment to place order )</div>
+                    </div>
+                  </div>
+                )}
+                {cartLocked && formData.paymentOption === 'cod' && (
+                  <div style={{ marginTop: 16, color: '#444', fontSize: 15 }}>
+                    You have selected <b>Cash on Delivery</b>. No advance payment required.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           <div className="checkout-right">
             <div className="shopping-cart">
               <h2 className="cart-title">Shopping Cart</h2>
-              <p className="cart-subtitle">You have {cart.length} item{cart.length !== 1 ? 's' : ''} in your cart.</p>
-
               <div className="cart-items">
-                {cart.map((item) => (
+                {(cartLocked ? lockedCart : cart).map((item) => (
                   <div key={`${item.id}-${item.color}-${item.size}`} className="cart-item">
                     <img
                       src={item.image}
@@ -252,6 +336,7 @@ ${locationLine}
                         onClick={() => removeFromCart(item.id, item.color, item.size)}
                         className="remove-item-btn"
                         title="Remove item"
+                        disabled={cartLocked}
                       >
                         <Minus className="w-4 h-4" />
                       </button>
@@ -264,28 +349,17 @@ ${locationLine}
               </div>
 
               <div className="cart-summary">
-                <div className="summary-row">
-                  <span>Subtotal</span>
-                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="summary-row">
-                  <span>Shipping Cost</span>
-                  <span>₹{shipping.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="summary-row">
-                  <span>Discount</span>
-                  <span>-₹{discount.toLocaleString('en-IN')}</span>
-                </div>
                 <div className="summary-row total">
                   <span>Total</span>
-                  <span>₹{total.toLocaleString('en-IN')}</span>
+                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
               </div>
 
               <button
                 className="place-order-btn"
-                onClick={handlePlaceOrder}
+                onClick={() => { setTimeout(handlePlaceOrder, 10); }}
                 disabled={!isFormValid}
+                style={{ marginTop: 16 }}
               >
                 <MessageCircle className="w-5 h-5" />
                 Place Order

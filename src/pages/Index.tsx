@@ -77,12 +77,13 @@ const Index = () => {
                 onComplete={() => setTextAnimationComplete(true)}
               />
               <p className={`absolute top-[100%] left-1/1 text-white -mt-2 ${isBold ? 'font-bold' : 'font-normal'}`} style={{ fontSize: '24px', fontFamily: "'Helvetica', sans-serif" }}>
-                Elegance Redesigned For Gen-Z
+                Elegance Redesigned<br />
+                <span className="text-orange-400 font-bold text-">  Gen-Z  </span>
               </p>
             </div>
 
             {/* Shop Now button positioned below social proof as primary CTA */}
-            <div className="absolute top-[65%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+            <div className="absolute top-[68%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
               <Link to="/gallery">
                 <button className="button">
                   <span className="text">Shop Now</span>

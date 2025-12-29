@@ -113,8 +113,18 @@ import whiteRightSleeve from "@/../products/PRODUCT CODE 00004T/white right slee
 // Placeholder for missing images (add real ones later)
 const placeholderImage = "https://via.placeholder.com/600";
 
-// Size options (removed 'S' and 'XXL')
-const SIZE_OPTIONS = ["XS", "M", "L", "XL"];
+// Size options (added 'S')
+const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL"];
+
+// Function to generate original price (2x of actual price for fixed discount)
+const generateOriginalPrice = (actualPrice: number) => {
+  return Math.round(actualPrice * 2);
+};
+
+// Function to calculate discount percentage
+const calculateDiscount = (originalPrice: number, actualPrice: number) => {
+  return Math.round(((originalPrice - actualPrice) / originalPrice) * 100);
+};
 
 interface ProductCardProps {
   product: {
@@ -286,6 +296,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         { name: "Green", key: "green", hex: "#008000" },
         { name: "Brown", key: "brown", hex: "#A52A2A" },
         { name: "Lavender", key: "lavender", hex: "#E6E6FA" },
+        { name: "Black", key: "black", hex: "#000000" },
       ],
       angleOptions: [
         { name: "Front", key: "front" },
@@ -360,8 +371,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
           side17: screenshotT_side17,
           side18: screenshotT_side17,
         },
+        black: {
+          front: screenshotT_back,
+          back: screenshotT_back,
+          side1: screenshotT_back,
+          side2: screenshotT_back,
+          side5: screenshotT_back,
+          side6: screenshotT_back,
+          side7: screenshotT_back,
+          side8: screenshotT_back,
+          side17: screenshotT_back,
+          side18: screenshotT_back,
+        },
       },
-      defaultColor: "yellow",
+      defaultColor: "black",
       defaultAngle: "front",
     },
     "Hoodie Screenshot": {
@@ -752,7 +775,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         onClick={handleCardClick}
       >
         <CardContent className="p-0">
-          <div className="relative overflow-hidden aspect-square flex items-center justify-center bg-gray-50">
+          <div className={`relative overflow-hidden aspect-square flex items-center justify-center ${product.code === '00002H' ? 'bg-white' : 'bg-gray-50'}`}>
             <img
               src={currentImage}
               alt={product.name}
@@ -798,7 +821,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     )}
                   </div>
                   {showPrice && (
-                    <div className="text-sm font-bold ml-3">₹{product.price}</div>
+                    <div className="text-sm font-bold ml-3">
+                      <span className="line-through text-gray-500 mr-2">₹{generateOriginalPrice(product.price)}</span>
+                      <span className="text-green-600">₹{product.price}</span>
+                      <span className="text-xs text-red-500 ml-1">({calculateDiscount(generateOriginalPrice(product.price), product.price)}% off)</span>
+                    </div>
                   )}
                 </div>
               )}
@@ -873,7 +900,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   </h2>
 
                   {/* Price */}
-                  <p className="text-lg md:text-xl font-semibold text-gray-900 mb-3">₹{product.price}</p>
+                  <div className="mb-3">
+                    <span className="text-lg md:text-xl font-semibold text-gray-500 line-through mr-3">₹{generateOriginalPrice(product.price)}</span>
+                    <span className="text-lg md:text-xl font-semibold text-green-600">₹{product.price}</span>
+                    <span className="text-sm text-red-500 ml-2">({calculateDiscount(generateOriginalPrice(product.price), product.price)}% off)</span>
+                  </div>
 
                   {/* Product Code */}
                   <p className="text-sm text-gray-600 mb-2">Product Code: {product.code}</p>
