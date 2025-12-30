@@ -13,6 +13,7 @@ import { TextAnimate } from "@/registry/magicui/text-animate";
 import { TypingAnimation } from "@/registry/magicui/typing-animation";
 import TextPressure from "@/components/TextPressure";
 import { DrawLineText } from "@/components/gsap/draw-line-text";
+import { Analytics } from "@vercel/analytics/next";
 
 
 const Index = () => {
