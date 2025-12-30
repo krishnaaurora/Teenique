@@ -824,7 +824,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           <div className="p-2 space-y-1">
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">
                 {product.category}
               </p>
               {showName && (
@@ -884,7 +884,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   </div>
 
                   {/* Product Code */}
-                  <p className="text-sm text-gray-600 mb-2">Product Code: {product.code}</p>
+                  <p className="text-xs text-gray-600 mb-2">Product Code: {product.code}</p>
 
                   {/* Description Collapsible */}
                   <Collapsible className="mb-4">
