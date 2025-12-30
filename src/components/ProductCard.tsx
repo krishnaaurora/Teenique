@@ -1108,7 +1108,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 </div>
 
                 {/* Angle/View Selection Buttons Below Image */}
-                {config.angleOptions.length > 1 && (
+                {config.angleOptions.length > 1 && product.code !== "00001T" && (
                   <div className="mt-4">
                     <div className="flex justify-center gap-2 flex-wrap">
                       {config.angleOptions.map((angle) => (
