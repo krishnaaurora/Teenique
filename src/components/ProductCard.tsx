@@ -836,10 +836,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     )}
                   </div>
                   {showPrice && (
-                    <div className="text-sm font-bold ml-3">
+                    <div className="text-xs font-bold ml-3">
                       <span className="line-through text-gray-500 mr-2">₹{generateOriginalPrice(product.price)}</span>
                       <span className="text-green-600">₹{product.price}</span>
-                      <span className="text-xs text-red-500 ml-1">({calculateDiscount(generateOriginalPrice(product.price), product.price)}% off)</span>
+                      <span className="text-[10px] text-red-500 ml-1">({calculateDiscount(generateOriginalPrice(product.price), product.price)}% off)</span>
                     </div>
                   )}
                 </div>
@@ -878,9 +878,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
                   {/* Price */}
                   <div className="mb-3">
-                    <span className="text-lg md:text-xl font-semibold text-gray-500 line-through mr-3">₹{generateOriginalPrice(product.price)}</span>
-                    <span className="text-lg md:text-xl font-semibold text-green-600">₹{product.price}</span>
-                    <span className="text-sm text-red-500 ml-2">({calculateDiscount(generateOriginalPrice(product.price), product.price)}% off)</span>
+                    <span className="text-base md:text-lg font-semibold text-gray-500 line-through mr-3">₹{generateOriginalPrice(product.price)}</span>
+                    <span className="text-base md:text-lg font-semibold text-green-600">₹{product.price}</span>
+                    <span className="text-xs text-red-500 ml-2">({calculateDiscount(generateOriginalPrice(product.price), product.price)}% off)</span>
                   </div>
 
                   {/* Product Code */}
