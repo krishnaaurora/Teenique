@@ -7,6 +7,7 @@ import { CartProvider } from "./contexts/CartContext";
 import { lazy, Suspense } from "react";
 import LoadingScreen from "./components/LoadingScreen";
 import { useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 const Index = lazy(() => import("./pages/Index"));
 const StyleGallery = lazy(() => import("./pages/StyleGallery"));
@@ -43,6 +44,7 @@ const App = () => {
               </Routes>
             </Suspense>
           </BrowserRouter>
+          <Analytics />
         </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>
