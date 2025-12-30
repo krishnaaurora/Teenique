@@ -908,7 +908,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     <CollapsibleContent>
                       <div ref={reviewsScrollRef} className="overflow-x-auto pb-2 mt-2">
                         <div className="flex gap-4 min-w-max">
-                          <div className="border rounded-lg p-4 min-w-[300px]">
+                          <div className="border rounded-lg p-3 min-w-[250px]">
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium">John D.</span>
@@ -926,7 +926,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                               <span>Helpful (12)</span>
                             </div>
                           </div>
-                          <div className="border rounded-lg p-4 min-w-[300px]">
+                          <div className="border rounded-lg p-3 min-w-[250px]">
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium">Sarah M.</span>
@@ -945,7 +945,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                               <span>Helpful (8)</span>
                             </div>
                           </div>
-                          <div className="border rounded-lg p-4 min-w-[300px]">
+                          <div className="border rounded-lg p-3 min-w-[250px]">
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium">Alex K.</span>

@@ -76,7 +76,7 @@ export const products: Product[] = [
   },
   {
     id: 15,
-    name: "Black Front Tee",
+    name: "R2T Oversized Tee",
     price: 499,
     image: r2tBlackFront,
     category: "Topwear",
