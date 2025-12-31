@@ -686,11 +686,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
       errors.color = "Please select a color";
     }
 
-    const currentQuantity = cartItem ? cartItem.quantity : 0;
-    if (currentQuantity < 1) {
-      errors.quantity = "Please select quantity";
-    }
-
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
@@ -732,8 +727,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
     // Determine the selected image
     const selectedImage = config?.images[selectedColor]?.[selectedAngle] || placeholderImage;
 
-    // Add item to cart and navigate to checkout
-    addToCartHandler(product, selectedColor || undefined, selectedSize || undefined, selectedImage);
+    // Add item to cart only if not already in cart
+    if (quantityInCart === 0) {
+      addToCartHandler(product, selectedColor || undefined, selectedSize || undefined, selectedImage);
+    }
 
     // Navigate to checkout
     setIsModalOpen(false);
@@ -793,7 +790,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         onClick={handleCardClick}
       >
         <CardContent className="p-0">
-          <div className={`relative overflow-hidden aspect-square flex items-center justify-center ${product.code === '00002H' ? 'bg-white' : 'bg-gray-50'}`}>
+          <div className={`relative overflow-hidden aspect-square flex items-center justify-center ${product.code === '002H' ? 'bg-white' : 'bg-gray-50'}`}>
             <img
               src={currentImage}
               alt={product.name}
@@ -1030,29 +1027,35 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         <button
                           onClick={() => {
                             const currentQty = cartItem ? cartItem.quantity : 0;
-                            if (currentQty > 0) {
-                              try {
-                                updateQuantityHandler(Number(product.id), currentQty - 1, selectedColor || undefined, selectedSize || undefined);
-                              } catch (err) {}
+
+                            if (currentQty > 1) {
+                              updateQuantityHandler(
+                                Number(product.id),
+                                currentQty - 1, // ✅ DECREASE
+                                matchColor,
+                                matchSize
+                              );
                             }
                           }}
-                          className="px-2 py-1 hover:bg-gray-50 text-sm"
+                          disabled={!cartItem || cartItem.quantity <= 1}
+                          className="px-2 py-1 hover:bg-gray-50 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           −
                         </button>
-                        <span className="px-3 py-1 border-x border-gray-300 text-sm">{cartItem ? cartItem.quantity : 0}</span>
+ <span className="px-3 py-1 border-x border-gray-300 text-sm">{cartItem ? cartItem.quantity : 0}</span>
                         <button
                           onClick={() => {
-                            const currentQty = cartItem ? cartItem.quantity : 0;
-                            if (currentQty > 0) {
-                              try {
-                                updateQuantityHandler(Number(product.id), currentQty + 1, selectedColor || undefined, selectedSize || undefined);
-                              } catch (err) {}
-                            } else {
-                              addToCartHandler(product as any, selectedColor || undefined, selectedSize || undefined, currentImage);
-                            }
+                            if (!cartItem) return; // 🚫 do nothing if not in cart
+
+                            updateQuantityHandler(
+                              Number(product.id),
+                              cartItem.quantity + 1, // ✅ increase only
+                              matchColor,
+                              matchSize
+                            );
                           }}
-                          className="px-2 py-1 hover:bg-gray-50 text-sm"
+                          disabled={!cartItem}
+                          className="px-2 py-1 hover:bg-gray-50 text-sm disabled:opacity-50"
                         >
                           +
                         </button>

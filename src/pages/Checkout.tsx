@@ -1,30 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import qrImage from '@/assets/SCANNERjpeg.jpeg';
 import { useCart } from '@/contexts/CartContext';
-import { MessageCircle, Minus } from 'lucide-react';
+import { MessageCircle, Minus, Plus } from 'lucide-react';
 import FashionLayout from '@/components/FashionLayout';
 import { products } from '@/data/products';
 import './Checkout.css';
 
-// Step 1: Get location (with permission)
+// Step 1: Get location (with permission) - Enhanced for better accuracy
 function getUserLocation() {
   return new Promise((resolve, reject) => {
+    // First attempt with high accuracy
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         resolve({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
         });
       },
-      () => reject(),
-      { enableHighAccuracy: true }
+      (error) => {
+        // If high accuracy fails, try with lower accuracy as fallback
+        console.log('High accuracy location failed:', error.message);
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            resolve({
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              accuracy: pos.coords.accuracy
+            });
+          },
+          () => reject(),
+          {
+            enableHighAccuracy: false,
+            timeout: 5000,
+            maximumAge: 60000
+          }
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      }
     );
   });
 }
 
 const Checkout = () => {
 
-  const { cart, cartTotal, removeFromCart } = useCart();
+  const { cart, cartTotal, removeFromCart, updateQuantity } = useCart();
   const [formData, setFormData] = useState({
     country: 'India',
     firstName: '',
@@ -42,6 +66,18 @@ const Checkout = () => {
   const [lockedCart, setLockedCart] = useState([]);
   const [lockedTotal, setLockedTotal] = useState(0);
   const [orderId, setOrderId] = useState('');
+  const [userLocation, setUserLocation] = useState(null);
+
+  // Get user location when component mounts for better accuracy
+  useEffect(() => {
+    getUserLocation()
+      .then((location) => {
+        setUserLocation(location);
+      })
+      .catch(() => {
+        // Silently fail - location will be attempted again on order placement
+      });
+  }, []);
 
   const subtotal = cartLocked ? lockedTotal : cartTotal;
   const shipping = 0;
@@ -72,13 +108,15 @@ const Checkout = () => {
   };
 
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrder = () => {
     // Only allow if cart is locked and payment is selected
     if (!cartLocked || !formData.paymentOption) return;
     if (formData.paymentOption === 'qr' && !formData.utr) {
       alert('Please enter UTR / Transaction ID for UPI payment.');
       return;
     }
+
+    // Build message synchronously first
     let message = `🛒 New Order\n\n`;
     message += `Order ID: ${orderId}\n`;
     message += `Name: ${formData.firstName} ${formData.lastName}\n`;
@@ -104,16 +142,27 @@ const Checkout = () => {
       message += `UTR/Transaction ID: ${formData.utr}\n`;
     }
 
-    // Step 2: WhatsApp order handler
-    let locationLine = "📍 Location: Not shared";
-    try {
-      const { lat, lng } = await getUserLocation();
-      locationLine = `📍 Location: https://www.google.com/maps?q=${lat},${lng}`;
-    } catch {}
+    // Try to get location (use stored location or fetch fresh one)
+    const getLocationForOrder = async () => {
+      // If we have a stored location, use it, otherwise get fresh location
+      if (userLocation) {
+        return userLocation;
+      } else {
+        return await getUserLocation();
+      }
+    };
 
-    const finalMessage = `\n🛒 New Order\n\n${message}\n${locationLine}\n`;
-    const url = `https://wa.me/+919866685221?text=${encodeURIComponent(finalMessage)}`;
-    window.open(url, "_blank");
+    getLocationForOrder().then(({ lat, lng, accuracy }) => {
+      const locationLine = `📍 Location: https://www.google.com/maps?q=${lat},${lng} (Accuracy: ~${Math.round(accuracy)}m)`;
+      const finalMessage = `\n🛒 New Order\n\n${message}\n${locationLine}\n`;
+      const url = `https://wa.me/+919866685221?text=${encodeURIComponent(finalMessage)}`;
+      window.open(url, "_blank");
+    }).catch(() => {
+      // If location fails, send without location
+      const finalMessage = `\n🛒 New Order\n\n${message}\n📍 Location: Not shared\n`;
+      const url = `https://wa.me/+919866685221?text=${encodeURIComponent(finalMessage)}`;
+      window.open(url, "_blank");
+    });
   };
 
   const isFormValid = formData.firstName && formData.lastName && formData.address &&
@@ -329,17 +378,33 @@ const Checkout = () => {
                         {item.color && ` • Color: ${item.color}`}
                         {item.size && ` • Size: ${item.size}`}
                       </p>
-                      <p className="cart-item-quantity">x{item.quantity}</p>
+                      <div className="cart-item-quantity-controls">
+                        <button
+                          onClick={() => {
+                            if (item.quantity > 1) {
+                              updateQuantity(item.id, item.quantity - 1, item.color, item.size);
+                            } else {
+                              removeFromCart(item.id, item.color, item.size);
+                            }
+                          }}
+                          className="quantity-btn"
+                          title="Decrease quantity"
+                          disabled={cartLocked}
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="quantity-display">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, item.color, item.size)}
+                          className="quantity-btn"
+                          title="Increase quantity"
+                          disabled={cartLocked}
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                     <div className="cart-item-actions">
-                      <button
-                        onClick={() => removeFromCart(item.id, item.color, item.size)}
-                        className="remove-item-btn"
-                        title="Remove item"
-                        disabled={cartLocked}
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
                       <div className="cart-item-price">
                         ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                       </div>
@@ -357,7 +422,7 @@ const Checkout = () => {
 
               <button
                 className="place-order-btn"
-                onClick={() => { setTimeout(handlePlaceOrder, 10); }}
+                onClick={handlePlaceOrder}
                 disabled={!isFormValid}
                 style={{ marginTop: 16 }}
               >
