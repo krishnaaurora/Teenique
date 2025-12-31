@@ -116,9 +116,9 @@ const placeholderImage = "https://via.placeholder.com/600";
 // Size options (added 'S')
 const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL"];
 
-// Function to generate original price (2x of actual price for fixed discount)
+// Function to generate original price (for 30% discount)
 const generateOriginalPrice = (actualPrice: number) => {
-  return Math.round(actualPrice * 2);
+  return Math.round(actualPrice / 0.7);
 };
 
 // Function to calculate discount percentage
@@ -814,17 +814,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </button>
             )}
 
-            {/* Product Code Badge */}
-            {product.name === "Back Grey Limited Edition" && (
-              <div className="absolute top-3 left-3 bg-[#D9C6A4] text-[#0F0F0F] text-xs font-mono font-bold px-2 py-1 rounded shadow">
-                00001H
-              </div>
-            )}
           </div>
 
           <div className="p-2 space-y-1">
             <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
                 {product.category}
               </p>
               {showName && (
@@ -839,7 +833,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     <div className="text-xs font-bold ml-3">
                       <span className="line-through text-gray-500 mr-2">₹{generateOriginalPrice(product.price)}</span>
                       <span className="text-green-600">₹{product.price}</span>
-                      <span className="text-[10px] text-red-500 ml-1">({calculateDiscount(generateOriginalPrice(product.price), product.price)}% off)</span>
+                      <span className="text-[10px] text-red-500 ml-1">(30% off)</span>
                     </div>
                   )}
                 </div>
@@ -880,7 +874,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   <div className="mb-3">
                     <span className="text-base md:text-lg font-semibold text-gray-500 line-through mr-3">₹{generateOriginalPrice(product.price)}</span>
                     <span className="text-base md:text-lg font-semibold text-green-600">₹{product.price}</span>
-                    <span className="text-xs text-red-500 ml-2">({calculateDiscount(generateOriginalPrice(product.price), product.price)}% off)</span>
+                    <span className="text-xs text-red-500 ml-2">(30% off)</span>
                   </div>
 
                   {/* Product Code */}
@@ -1108,14 +1102,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 </div>
 
                 {/* Angle/View Selection Buttons Below Image */}
-                {config.angleOptions.length > 1 && product.code !== "00001T" && (
+                {config.angleOptions.length > 1 && product.code !== "001T" && (
                   <div className="mt-4">
                     <div className="flex justify-center gap-2 flex-wrap">
                       {config.angleOptions.map((angle) => (
                         <button
                           key={angle.key}
                           onClick={() => setSelectedAngle(angle.key)}
-                          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                          className={`px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
                             selectedAngle === angle.key
                               ? "border-black bg-black text-white"
                               : "border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50"

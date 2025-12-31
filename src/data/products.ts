@@ -24,7 +24,7 @@ export const products: Product[] = [
     price: 899,
     image: backGrey,
     category: "Topwear",
-    code: "00001H",
+    code: "001H",
   },
   {
     id: 8,
@@ -32,7 +32,7 @@ export const products: Product[] = [
     price: 599,
     image: blackJoggers,
     category: "bottom wear",
-    code: "00001j",
+    code: "001j",
   },
   {
     id: 9,
@@ -40,7 +40,7 @@ export const products: Product[] = [
     price: 699,
     image: offWhiteSweatpants,
     category: "bottom wear",
-    code: "00001sp",
+    code: "001sp",
   },
   {
     id: 10,
@@ -48,15 +48,15 @@ export const products: Product[] = [
     price: 599,
     image: screenshotT,
     category: "Topwear",
-    code: "00001T",
+    code: "001T",
   },
   {
     id: 11,
     name: "Hoodie Screenshot",
-    price: 699,
+    price: 1500,
     image: screenshotH,
     category: "Topwear",
-    code: "00002H",
+    code: "002H",
   },
   {
     id: 12,
@@ -64,7 +64,7 @@ export const products: Product[] = [
     price: 599,
     image: screenshot3T_1,
     category: "Topwear",
-    code: "00003T",
+    code: "003T",
   },
   {
     id: 13,
@@ -72,7 +72,7 @@ export const products: Product[] = [
     price: 699,
     image: redBack,
     category: "Topwear",
-    code: "00004T",
+    code: "004T",
   },
   {
     id: 15,
@@ -80,7 +80,7 @@ export const products: Product[] = [
     price: 499,
     image: r2tBlackFront,
     category: "Topwear",
-    code: "00002T",
+    code: "002T",
   },
   {
     id: 16,
@@ -88,6 +88,6 @@ export const products: Product[] = [
     price: 599,
     image: hoodie03HBlackFront,
     category: "Topwear",
-    code: "00003H",
+    code: "003H",
   },
 ];
