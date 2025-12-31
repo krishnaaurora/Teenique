@@ -116,9 +116,12 @@ const placeholderImage = "https://via.placeholder.com/600";
 // Size options (added 'S')
 const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL"];
 
-// Function to generate original price (for 30% discount)
-const generateOriginalPrice = (actualPrice: number) => {
-  return Math.round(actualPrice / 0.7);
+// Function to generate original price (for 50% discount, except 002H which has 55% discount)
+const generateOriginalPrice = (actualPrice: number, productCode?: string) => {
+  if (productCode === "002H") {
+    return 1499;
+  }
+  return Math.round(actualPrice / 0.5);
 };
 
 // Function to calculate discount percentage
@@ -831,9 +834,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   </div>
                   {showPrice && (
                     <div className="text-xs font-bold ml-3">
-                      <span className="line-through text-gray-500 mr-2">₹{generateOriginalPrice(product.price)}</span>
+                      <span className="line-through text-gray-500 mr-2">₹{generateOriginalPrice(product.price, product.code)}</span>
                       <span className="text-green-600">₹{product.price}</span>
-                      <span className="text-[10px] text-red-500 ml-1">(30% off)</span>
+                      <span className="text-[10px] text-red-500 ml-1">({product.code === "002H" ? "55%" : "50%"} off)</span>
                     </div>
                   )}
                 </div>
@@ -872,9 +875,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
                   {/* Price */}
                   <div className="mb-3">
-                    <span className="text-base md:text-lg font-semibold text-gray-500 line-through mr-3">₹{generateOriginalPrice(product.price)}</span>
+                    <span className="text-base md:text-lg font-semibold text-gray-500 line-through mr-3">₹{generateOriginalPrice(product.price, product.code)}</span>
                     <span className="text-base md:text-lg font-semibold text-green-600">₹{product.price}</span>
-                    <span className="text-xs text-red-500 ml-2">(30% off)</span>
+                    <span className="text-xs text-red-500 ml-2">({product.code === "002H" ? "55%" : "50%"} off)</span>
                   </div>
 
                   {/* Product Code */}

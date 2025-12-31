@@ -57,7 +57,11 @@ const ProductDetails = () => {
               Pair it with minimalist accessories for a sleek daytime fit or layer it with bold textures for night outs.
             </p>
             <div className="flex items-center gap-6">
-              <span className="text-3xl font-semibold text-foreground">₹{product.price}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-semibold text-gray-500 line-through">₹{product.code === "002H" ? 1499 : Math.round(product.price / 0.5)}</span>
+                <span className="text-3xl font-semibold text-green-600">₹{product.price}</span>
+                <span className="text-sm text-red-500">({product.code === "002H" ? "55%" : "50%"} off)</span>
+              </div>
               <span className="text-sm text-muted-foreground">In stock · ships in 2 days</span>
             </div>
             <div className="flex flex-wrap gap-4">
