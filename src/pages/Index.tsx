@@ -84,7 +84,7 @@ const Index = () => {
                 onComplete={() => setTextAnimationComplete(true)}
               />
               <p className={`absolute top-[80%] left-1/1 mt-1 md:left-1/1 md:top-[100%] md:-mt-1 text-white text-xl md:text-3xl lg:text-4xl ${isBold ? 'font-bold' : 'font-normal'}`} style={{ fontFamily: "'Helvetica', sans-serif" }}>
-                Elegance Redesigned For<br />
+                Elegance Redefined For<br />
                 <span className="text-orange-400 font-bold block text-center">Gen-Z</span>
               </p>
             </div>
