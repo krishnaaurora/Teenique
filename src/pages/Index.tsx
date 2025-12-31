@@ -90,7 +90,7 @@ const Index = () => {
             </div>
 
             {/* Shop Now button positioned below social proof as primary CTA */}
-            <div className="absolute top-[59%] md:top-[70%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+            <div className="absolute top-[59%] md:top-[71%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
               <Link to="/gallery">
                 <button className="button">
                   <span className="text">Shop Now</span>
@@ -104,7 +104,7 @@ const Index = () => {
             </div>
 
             {/* Social proof positioned with small gap from brand text */}
-            <div className="absolute top-[64%] md:top-[74%] left-1/2 transform -translate-x-1/2 flex gap-8 text-sm text-white/80 justify-center">
+            <div className="absolute top-[75%] md:top-[77%] left-1/2 transform -translate-x-1/2 flex gap-8 text-sm text-white/80 justify-center">
                 {[{n:'1K+',t:'Happy Customers'},{n:'4.9',t:'Rating'}].map((s,idx)=> (
                   <div key={idx} className="flex flex-col items-center gap-1">
                    {s.n ? <CountingNumber target={s.n} start={textAnimationComplete} duration={1000} className="text-3xl md:text-4xl font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }} /> : null}
