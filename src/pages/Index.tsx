@@ -84,13 +84,13 @@ const Index = () => {
                 onComplete={() => setTextAnimationComplete(true)}
               />
               <p className={`absolute top-[80%] left-1/1 mt-1 md:left-1/1 md:top-[100%] md:-mt-1 text-white text-xl md:text-3xl lg:text-4xl ${isBold ? 'font-bold' : 'font-normal'}`} style={{ fontFamily: "'Helvetica', sans-serif" }}>
-                EleganceRedesigned<br />
-                <span className="text-orange-400 font-bold text">  Gen-Z  </span>
+                Elegance Redesigned For<br />
+                <span className="text-orange-400 font-bold block text-center">Gen-Z</span>
               </p>
             </div>
 
             {/* Shop Now button positioned below social proof as primary CTA */}
-            <div className="absolute top-[58%] md:top-[68%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+            <div className="absolute top-[59%] md:top-[70%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
               <Link to="/gallery">
                 <button className="button">
                   <span className="text">Shop Now</span>
@@ -105,9 +105,9 @@ const Index = () => {
 
             {/* Social proof positioned with small gap from brand text */}
             <div className="absolute top-[64%] md:top-[74%] left-1/2 transform -translate-x-1/2 flex gap-8 text-sm text-white/80 justify-center">
-                {[{n:'50K+',t:'Happy Customers'},{n:'200+',t:'Unique Styles'},{n:'4.9',t:'Rating'}].map((s,idx)=> (
-                  <div key={s.n} className="flex flex-col items-center gap-1">
-                   <CountingNumber target={s.n} start={textAnimationComplete} className="text-3xl md:text-4xl font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }} />
+                {[{n:'1K+',t:'Happy Customers'},{n:'4.9',t:'Rating'}].map((s,idx)=> (
+                  <div key={idx} className="flex flex-col items-center gap-1">
+                   {s.n ? <CountingNumber target={s.n} start={textAnimationComplete} duration={1000} className="text-3xl md:text-4xl font-extrabold" style={{ fontFamily: "'Poppins', sans-serif" }} /> : null}
                      <span className="text-sm md:text-base font-medium" style={{ fontFamily: "'Poppins', sans-serif" }}>{s.t}</span>
                   </div>
                 ))}
