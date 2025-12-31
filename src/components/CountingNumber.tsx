@@ -5,9 +5,10 @@ interface CountingNumberProps {
   duration?: number;
   className?: string;
   start?: boolean;
+  style?: React.CSSProperties;
 }
 
-const CountingNumber: React.FC<CountingNumberProps> = ({ target, duration = 2000, className, start = true }) => {
+const CountingNumber: React.FC<CountingNumberProps> = ({ target, duration = 2000, className, start = true, style }) => {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -57,7 +58,7 @@ const CountingNumber: React.FC<CountingNumberProps> = ({ target, duration = 2000
     }
   };
 
-  return <span className={className}>{displayValue()}</span>;
+  return <span className={className} style={style}>{displayValue()}</span>;
 };
 
 export default CountingNumber;
