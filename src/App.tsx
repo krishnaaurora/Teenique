@@ -5,8 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./contexts/CartContext";
 import { lazy, Suspense } from "react";
-import LoadingScreen from "./components/LoadingScreen";
-import { useState } from "react";
 
 const Index = lazy(() => import("./pages/Index"));
 const StyleGallery = lazy(() => import("./pages/StyleGallery"));
@@ -18,12 +16,6 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
-
-  if (loading) {
-    return <LoadingScreen onLoadingComplete={() => setLoading(false)} />;
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

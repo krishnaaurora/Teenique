@@ -5,9 +5,12 @@ import { useCart } from "@/contexts/CartContext";
 import { Link } from "react-router-dom";
 import { ShoppingBag, ArrowRight, Heart } from "lucide-react";
 import { products as allProducts } from "@/data/products";
+import { useState, useEffect } from "react";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const Collections = () => {
   const { cart, likes, addToCart } = useCart();
+  const [loading, setLoading] = useState(true);
   
   // Gradient configuration provided by user
   const gradientConfig = {
@@ -77,6 +80,10 @@ const Collections = () => {
       }
     });
   };
+
+  if (loading) {
+    return <LoadingScreen onLoadingComplete={() => setLoading(false)} />;
+  }
 
   return (
     <FashionLayout>
